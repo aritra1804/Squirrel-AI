@@ -31,6 +31,25 @@ import {
   IconButton,
   Tooltip,
   Link,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Code,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  List,
+  ListItem,
+  ListIcon,
+  useColorMode,
+  Avatar,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
 } from '@chakra-ui/react'
 import ReactMarkdown from 'react-markdown'
 import axios from 'axios'
@@ -47,10 +66,85 @@ import {
   FiDownload,
   FiPlay,
   FiCheckCircle,
-  FiInfo
+  FiInfo,
+  FiFile,
+  FiFolder,
+  FiCpu,
+  FiDatabase,
+  FiSettings,
+  FiChevronDown,
+  FiChevronRight,
+  FiHash,
+  FiTag,
+  FiMoon,
+  FiSun,
+  FiExternalLink,
+  FiGlobe,
+  FiTrendingUp,
+  FiShield,
+  FiLayers,
+  FiCommand,
+  FiTerminal,
+  FiGitBranch,
+  FiGitCommit,
+  FiGitPullRequest,
+  FiAlertCircle,
+  FiClock,
+  FiActivity,
+  FiBarChart,
+  FiPieChart,
+  FiGrid,
+  FiList,
+  FiMaximize2,
+  FiMinimize2,
 } from 'react-icons/fi'
 
-const API_URL = 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
+interface CodeStructure {
+  imports?: string[];
+  functions?: Array<{
+    name: string;
+    line: number;
+    args: string[];
+    docstring: string;
+  }>;
+  classes?: Array<{
+    name: string;
+    line: number;
+    methods: Array<{
+      name: string;
+      line: number;
+      args: string[];
+      docstring: string;
+    }>;
+    docstring: string;
+  }>;
+  type?: string;
+  size?: number;
+  lines?: number;
+  error?: string;
+}
+
+interface Stats {
+  total_files: number;
+  python_files: number;
+  js_files: number;
+  total_functions: number;
+  total_classes: number;
+}
+
+interface AnalyzeResponse {
+  summary: string;
+  readme: string;
+  code_structure: Record<string, CodeStructure>;
+  stats: Stats;
+}
+
+interface QuestionResponse {
+  answer: string;
+  context_files: string[];
+}
 
 function App() {
   const [repoUrl, setRepoUrl] = useState('')
@@ -62,14 +156,26 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isAsking, setIsAsking] = useState(false)
+  const [codeStructure, setCodeStructure] = useState<Record<string, CodeStructure>>({})
+  const [stats, setStats] = useState<Stats | null>(null)
+  const [contextFiles, setContextFiles] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState(0)
   const toast = useToast()
+  const { colorMode, toggleColorMode } = useColorMode()
 
+  // Enhanced color scheme for dark mode
   const bgGradient = useColorModeValue(
-    'linear(to-br, blue.50, purple.50, pink.50)',
+    'linear(to-br, gray.50, blue.50, purple.50)',
     'linear(to-br, gray.900, blue.900, purple.900)'
   )
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
+  const textColor = useColorModeValue('gray.800', 'gray.100')
+  const mutedTextColor = useColorModeValue('gray.600', 'gray.400')
+  const accentColor = useColorModeValue('blue.500', 'blue.300')
+  const successColor = useColorModeValue('green.500', 'green.300')
+  const warningColor = useColorModeValue('orange.500', 'orange.300')
+  const errorColor = useColorModeValue('red.500', 'red.300')
 
   const validateGitHubUrl = (url: string) => {
     if (!url) return false
@@ -107,10 +213,14 @@ function App() {
     setIsAnalyzing(true)
     setError(null)
     try {
-      const response = await axios.post(`${API_URL}/analyze`, { url: repoUrl })
+      const response = await axios.post<AnalyzeResponse>(`${API_URL}/analyze`, { url: repoUrl })
       setSummary(response.data.summary)
       setReadme(response.data.readme)
+      setCodeStructure(response.data.code_structure)
+      setStats(response.data.stats)
       setAnswer('')
+      setContextFiles([])
+      setActiveTab(0)
       toast({
         title: 'Success!',
         description: 'Repository analyzed successfully',
@@ -161,11 +271,13 @@ function App() {
     setIsAsking(true)
     setError(null)
     try {
-      const response = await axios.post(`${API_URL}/ask`, {
+      const response = await axios.post<QuestionResponse>(`${API_URL}/ask`, {
         question,
         repo_url: repoUrl,
       })
       setAnswer(response.data.answer)
+      setContextFiles(response.data.context_files)
+      setActiveTab(3) // Switch to Q&A tab
       toast({
         title: 'Answer Generated!',
         description: 'Your question has been answered',
@@ -194,22 +306,26 @@ function App() {
     {
       icon: FiSearch,
       title: 'Smart Analysis',
-      description: 'AI-powered repository analysis that understands your codebase structure and purpose.'
+      description: 'AI-powered repository analysis that understands your codebase structure and purpose.',
+      color: 'blue'
     },
     {
       icon: FiMessageSquare,
       title: 'Interactive Q&A',
-      description: 'Ask questions about any part of the codebase and get intelligent, contextual answers.'
+      description: 'Ask questions about any part of the codebase and get intelligent, contextual answers.',
+      color: 'green'
     },
     {
       icon: FiZap,
       title: 'Lightning Fast',
-      description: 'Powered by Ollama and advanced embeddings for quick, accurate responses.'
+      description: 'Powered by OpenAI and advanced embeddings for quick, accurate responses.',
+      color: 'purple'
     },
     {
       icon: FiCode,
       title: 'Multi-Language',
-      description: 'Supports Python, JavaScript, TypeScript, Java, Go, C++, C, and Ruby repositories.'
+      description: 'Supports Python, JavaScript, TypeScript, Java, Go, C++, C, and Ruby repositories.',
+      color: 'orange'
     }
   ]
 
@@ -217,17 +333,23 @@ function App() {
     {
       name: 'React',
       url: 'https://github.com/facebook/react',
-      description: 'Popular JavaScript library for building user interfaces'
+      description: 'Popular JavaScript library for building user interfaces',
+      stars: '200k+',
+      language: 'TypeScript'
     },
     {
       name: 'Vue.js',
       url: 'https://github.com/vuejs/vue',
-      description: 'Progressive JavaScript framework for building UIs'
+      description: 'Progressive JavaScript framework for building UIs',
+      stars: '200k+',
+      language: 'JavaScript'
     },
     {
       name: 'FastAPI',
       url: 'https://github.com/tiangolo/fastapi',
-      description: 'Modern Python web framework for building APIs'
+      description: 'Modern Python web framework for building APIs',
+      stars: '70k+',
+      language: 'Python'
     }
   ]
 
@@ -242,43 +364,167 @@ function App() {
     })
   }
 
+  const renderCodeStructure = () => {
+    const files = Object.entries(codeStructure)
+    
+    return (
+      <Accordion allowMultiple>
+        {files.slice(0, 20).map(([filePath, structure]) => (
+          <AccordionItem key={filePath} border="none" mb={2}>
+            <AccordionButton
+              bg={useColorModeValue('gray.50', 'gray.700')}
+              _hover={{ bg: useColorModeValue('gray.100', 'gray.600') }}
+              borderRadius="lg"
+              p={4}
+            >
+              <Box flex="1" textAlign="left">
+                <HStack>
+                  <Icon as={FiFile} color={accentColor} />
+                  <Text fontWeight="medium" color={textColor}>{filePath}</Text>
+                  {structure.functions && (
+                    <Badge colorScheme="green" size="sm" variant="subtle">
+                      {structure.functions.length} func
+                    </Badge>
+                  )}
+                  {structure.classes && (
+                    <Badge colorScheme="purple" size="sm" variant="subtle">
+                      {structure.classes.length} class
+                    </Badge>
+                  )}
+                </HStack>
+              </Box>
+              <AccordionIcon color={mutedTextColor} />
+            </AccordionButton>
+            <AccordionPanel pb={4} pt={2}>
+              <VStack align="stretch" spacing={3}>
+                {structure.functions && structure.functions.length > 0 && (
+                  <Box>
+                    <Text fontWeight="semibold" mb={2} color={textColor}>Functions:</Text>
+                    <List spacing={1}>
+                      {structure.functions.slice(0, 5).map((func, idx) => (
+                        <ListItem key={idx}>
+                          <HStack>
+                            <ListIcon as={FiHash} color={successColor} />
+                            <Code fontSize="sm" bg={useColorModeValue('gray.100', 'gray.700')} color={textColor}>
+                              {func.name}({func.args.join(', ')})
+                            </Code>
+                            <Text fontSize="xs" color={mutedTextColor}>line {func.line}</Text>
+                          </HStack>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                )}
+                
+                {structure.classes && structure.classes.length > 0 && (
+                  <Box>
+                    <Text fontWeight="semibold" mb={2} color={textColor}>Classes:</Text>
+                    <List spacing={1}>
+                      {structure.classes.slice(0, 3).map((cls, idx) => (
+                        <ListItem key={idx}>
+                          <HStack>
+                            <ListIcon as={FiTag} color={warningColor} />
+                            <Code fontSize="sm" bg={useColorModeValue('gray.100', 'gray.700')} color={textColor}>
+                              {cls.name}
+                            </Code>
+                            <Text fontSize="xs" color={mutedTextColor}>line {cls.line}</Text>
+                            {cls.methods && cls.methods.length > 0 && (
+                              <Badge size="sm" colorScheme="blue" variant="subtle">
+                                {cls.methods.length} methods
+                              </Badge>
+                            )}
+                          </HStack>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                )}
+              </VStack>
+            </AccordionPanel>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    )
+  }
+
   return (
-    <Box minH="100vh" bgGradient={bgGradient}>
-      {/* Header */}
-      <Box as="header" py={6} borderBottom="1px" borderColor={borderColor} bg={cardBg}>
+    <Box minH="100vh" bgGradient={bgGradient} color={textColor}>
+      {/* Enhanced Header */}
+      <Box 
+        as="header" 
+        py={6} 
+        borderBottom="1px" 
+        borderColor={borderColor} 
+        bg={useColorModeValue('white', 'gray.800')}
+        backdropFilter="blur(10px)"
+        position="sticky"
+        top={0}
+        zIndex={10}
+        boxShadow={useColorModeValue('sm', 'lg')}
+      >
         <Container maxW="container.xl">
           <Flex justify="space-between" align="center">
             <HStack spacing={3}>
-              <Icon as={FiGithub} w={8} h={8} color="blue.500" />
-              <Heading size="lg" bgGradient="linear(to-r, blue.500, purple.500)" bgClip="text">
-                GitGenie
-              </Heading>
+              <Avatar 
+                size="md" 
+                bg={accentColor} 
+                icon={<FiGithub />} 
+                name="GitGenie"
+              />
+              <VStack align="start" spacing={0}>
+                <Heading size="lg" bgGradient="linear(to-r, blue.500, purple.500)" bgClip="text">
+                  GitGenie
+                </Heading>
+                <Text fontSize="xs" color={mutedTextColor}>AI-Powered Code Analysis</Text>
+              </VStack>
             </HStack>
             <HStack spacing={4}>
-              <Badge colorScheme="green" variant="subtle">AI-Powered</Badge>
-              <Badge colorScheme="blue" variant="subtle">Free</Badge>
+              <Tag colorScheme="green" variant="subtle" size="sm">
+                <TagLeftIcon as={FiZap} />
+                <TagLabel>AI-Powered</TagLabel>
+              </Tag>
+              <Tag colorScheme="blue" variant="subtle" size="sm">
+                <TagLeftIcon as={FiGlobe} />
+                <TagLabel>OpenAI</TagLabel>
+              </Tag>
+              <IconButton
+                aria-label="Toggle color mode"
+                icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
+                onClick={toggleColorMode}
+                variant="ghost"
+                size="sm"
+              />
             </HStack>
           </Flex>
         </Container>
       </Box>
 
       <Container maxW="container.xl" py={12}>
-        {/* Hero Section */}
+        {/* Enhanced Hero Section */}
         <VStack spacing={12} textAlign="center" mb={16}>
           <VStack spacing={6} maxW="4xl">
-            <Heading 
-              size="2xl" 
-              bgGradient="linear(to-r, blue.600, purple.600)" 
-              bgClip="text"
-              lineHeight="1.2"
-            >
-              Understand Any GitHub Repository
-              <br />
-              <Text as="span" fontSize="xl" color="gray.600">
-                in Seconds
-              </Text>
-            </Heading>
-            <Text fontSize="xl" color="gray.600" maxW="2xl">
+            <VStack spacing={4}>
+              <Badge colorScheme="purple" variant="subtle" px={3} py={1} borderRadius="full">
+                <HStack spacing={2}>
+                  <Icon as={FiTrendingUp} />
+                  <Text>Latest Version 2.0</Text>
+                </HStack>
+              </Badge>
+              <Heading 
+                size="2xl" 
+                bgGradient="linear(to-r, blue.600, purple.600)" 
+                bgClip="text"
+                lineHeight="1.2"
+                fontWeight="extrabold"
+              >
+                Understand Any GitHub Repository
+                <br />
+                <Text as="span" fontSize="xl" color={mutedTextColor} fontWeight="normal">
+                  in Seconds with AI
+                </Text>
+              </Heading>
+            </VStack>
+            <Text fontSize="xl" color={mutedTextColor} maxW="2xl" lineHeight="1.6">
               GitGenie uses advanced AI to analyze your codebase, answer questions, and provide insights 
               that help you understand complex repositories instantly.
             </Text>
@@ -288,6 +534,10 @@ function App() {
                 colorScheme="blue"
                 leftIcon={<FiPlay />}
                 onClick={() => document.getElementById('repo-input')?.focus()}
+                borderRadius="full"
+                px={8}
+                _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
+                transition="all 0.2s"
               >
                 Try It Now
               </Button>
@@ -295,66 +545,113 @@ function App() {
                 size="lg"
                 variant="outline"
                 leftIcon={<FiBookOpen />}
+                borderRadius="full"
+                px={8}
+                _hover={{ transform: 'translateY(-2px)' }}
+                transition="all 0.2s"
               >
                 View Examples
               </Button>
             </HStack>
           </VStack>
 
-          {/* Stats */}
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8} w="full" maxW="2xl">
+          {/* Enhanced Stats */}
+          <SimpleGrid columns={{ base: 1, md: 4 }} spacing={8} w="full" maxW="3xl">
             <Stat textAlign="center">
-              <StatNumber color="blue.500">10+</StatNumber>
-              <StatLabel>Languages Supported</StatLabel>
+              <StatNumber color={accentColor} fontSize="3xl" fontWeight="bold">10+</StatNumber>
+              <StatLabel color={mutedTextColor}>Languages Supported</StatLabel>
             </Stat>
             <Stat textAlign="center">
-              <StatNumber color="purple.500">Instant</StatNumber>
-              <StatLabel>Analysis Speed</StatLabel>
+              <StatNumber color={successColor} fontSize="3xl" fontWeight="bold">Instant</StatNumber>
+              <StatLabel color={mutedTextColor}>Analysis Speed</StatLabel>
             </Stat>
             <Stat textAlign="center">
-              <StatNumber color="green.500">100%</StatNumber>
-              <StatLabel>Free to Use</StatLabel>
+              <StatNumber color={warningColor} fontSize="3xl" fontWeight="bold">100%</StatNumber>
+              <StatLabel color={mutedTextColor}>Free to Use</StatLabel>
+            </Stat>
+            <Stat textAlign="center">
+              <StatNumber color={errorColor} fontSize="3xl" fontWeight="bold">AI</StatNumber>
+              <StatLabel color={mutedTextColor}>Powered</StatLabel>
             </Stat>
           </SimpleGrid>
         </VStack>
 
-        {/* Example Repositories */}
+        {/* Enhanced Example Repositories */}
         <VStack spacing={6} mb={12}>
           <VStack spacing={2}>
-            <Text fontSize="lg" color="gray.600">Try with popular repositories:</Text>
-            <HStack spacing={4} flexWrap="wrap" justify="center">
+            <Text fontSize="lg" color={mutedTextColor}>Try with popular repositories:</Text>
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} w="full">
               {exampleRepos.map((repo, index) => (
-                <Button
-                  key={index}
-                  size="sm"
-                  variant="outline"
+                <Card 
+                  key={index} 
+                  bg={cardBg} 
+                  border="1px" 
+                  borderColor={borderColor} 
+                  borderRadius="xl" 
+                  shadow="md"
+                  cursor="pointer"
+                  _hover={{ 
+                    transform: 'translateY(-4px)', 
+                    shadow: 'xl',
+                    borderColor: accentColor 
+                  }}
+                  transition="all 0.3s"
                   onClick={() => setExampleRepo(repo.url)}
-                  leftIcon={<FiStar />}
                 >
-                  {repo.name}
-                </Button>
+                  <CardBody p={6}>
+                    <VStack spacing={3} align="stretch">
+                      <HStack justify="space-between">
+                        <HStack>
+                          <Icon as={FiStar} color={warningColor} />
+                          <Text fontWeight="bold" color={textColor}>{repo.name}</Text>
+                        </HStack>
+                        <Badge colorScheme="blue" variant="subtle" size="sm">
+                          {repo.language}
+                        </Badge>
+                      </HStack>
+                      <Text fontSize="sm" color={mutedTextColor} noOfLines={2}>
+                        {repo.description}
+                      </Text>
+                      <HStack justify="space-between">
+                        <Text fontSize="xs" color={mutedTextColor}>
+                          ⭐ {repo.stars}
+                        </Text>
+                        <Icon as={FiExternalLink} color={mutedTextColor} />
+                      </HStack>
+                    </VStack>
+                  </CardBody>
+                </Card>
               ))}
-            </HStack>
+            </SimpleGrid>
           </VStack>
         </VStack>
 
-        {/* Main Interface */}
+        {/* Enhanced Main Interface */}
         <VStack spacing={8} align="stretch">
           {error && (
-            <Alert status="error" borderRadius="lg">
+            <Alert status="error" borderRadius="xl" variant="left-accent">
               <AlertIcon />
-              <AlertTitle>Error!</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
+              <Box>
+                <AlertTitle>Error!</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Box>
             </Alert>
           )}
 
-          {/* Repository Input */}
-          <Card bg={cardBg} border="1px" borderColor={borderColor} borderRadius="xl" shadow="lg">
+          {/* Enhanced Repository Input */}
+          <Card 
+            bg={cardBg} 
+            border="1px" 
+            borderColor={borderColor} 
+            borderRadius="2xl" 
+            shadow="xl"
+            overflow="hidden"
+          >
             <CardBody p={8}>
               <VStack spacing={6}>
                 <HStack spacing={3}>
-                  <Icon as={FiGithub} w={6} h={6} color="blue.500" />
-                  <Heading size="md">Repository Analysis</Heading>
+                  <Icon as={FiGithub} w={6} h={6} color={accentColor} />
+                  <Heading size="md" color={textColor}>Repository Analysis</Heading>
                 </HStack>
                 <VStack spacing={4} w="full">
                   <Input
@@ -364,7 +661,13 @@ function App() {
                     value={repoUrl}
                     onChange={(e) => setRepoUrl(e.target.value)}
                     borderColor={borderColor}
-                    _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)' }}
+                    borderRadius="xl"
+                    _focus={{ 
+                      borderColor: accentColor, 
+                      boxShadow: `0 0 0 1px ${accentColor}`,
+                      transform: 'scale(1.02)'
+                    }}
+                    transition="all 0.2s"
                   />
                   <Button
                     size="lg"
@@ -374,16 +677,26 @@ function App() {
                     loadingText="Analyzing Repository..."
                     leftIcon={<FiSearch />}
                     w="full"
-                    h={12}
+                    h={14}
+                    borderRadius="xl"
+                    _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
+                    transition="all 0.2s"
                   >
                     {isAnalyzing ? 'Analyzing...' : 'Analyze Repository'}
                   </Button>
                 </VStack>
                 {isAnalyzing && (
                   <VStack spacing={3} w="full">
-                    <Progress size="sm" isIndeterminate colorScheme="blue" w="full" />
-                    <Text fontSize="sm" color="gray.500">
-                      Cloning repository and generating embeddings...
+                    <Progress 
+                      size="sm" 
+                      isIndeterminate 
+                      colorScheme="blue" 
+                      w="full" 
+                      borderRadius="full"
+                    />
+                    <Text fontSize="sm" color={mutedTextColor}>
+                      <Icon as={FiActivity} mr={2} />
+                      Analyzing code...
                     </Text>
                   </VStack>
                 )}
@@ -391,146 +704,286 @@ function App() {
             </CardBody>
           </Card>
 
-          {/* Results Section */}
-          {(summary || readme) && (
-            <VStack spacing={6} align="stretch">
-              {summary && (
-                <Card bg={cardBg} border="1px" borderColor={borderColor} borderRadius="xl" shadow="lg">
-                  <CardBody p={8}>
-                    <VStack spacing={4} align="stretch">
-                      <HStack spacing={3}>
-                        <Icon as={FiCheckCircle} w={5} h={5} color="green.500" />
-                        <Heading size="md">Repository Summary</Heading>
+          {/* Enhanced Results Section with Tabs */}
+          {(summary || readme || Object.keys(codeStructure).length > 0) && (
+            <Card 
+              bg={cardBg} 
+              border="1px" 
+              borderColor={borderColor} 
+              borderRadius="2xl" 
+              shadow="xl"
+              overflow="hidden"
+            >
+              <CardBody p={0}>
+                <Tabs index={activeTab} onChange={setActiveTab} variant="enclosed" colorScheme="blue">
+                  <TabList bg={useColorModeValue('gray.50', 'gray.700')} px={6} pt={6}>
+                    <Tab 
+                      borderRadius="lg" 
+                      mr={2}
+                      _selected={{ bg: cardBg, color: accentColor }}
+                    >
+                      <HStack spacing={2}>
+                        <Icon as={FiCheckCircle} />
+                        <Text>Summary</Text>
                       </HStack>
-                      <Box 
-                        p={6} 
-                        bg={useColorModeValue('gray.50', 'gray.700')} 
-                        borderRadius="lg"
-                        border="1px"
-                        borderColor={borderColor}
-                      >
-                        <Text fontSize="md" lineHeight="1.7">{summary}</Text>
-                      </Box>
-                    </VStack>
-                  </CardBody>
-                </Card>
-              )}
-
-              {readme && (
-                <Card bg={cardBg} border="1px" borderColor={borderColor} borderRadius="xl" shadow="lg">
-                  <CardBody p={8}>
-                    <VStack spacing={4} align="stretch">
-                      <HStack spacing={3}>
-                        <Icon as={FiBookOpen} w={5} h={5} color="purple.500" />
-                        <Heading size="md">README Content</Heading>
+                    </Tab>
+                    <Tab 
+                      borderRadius="lg" 
+                      mr={2}
+                      _selected={{ bg: cardBg, color: accentColor }}
+                    >
+                      <HStack spacing={2}>
+                        <Icon as={FiBookOpen} />
+                        <Text>README</Text>
                       </HStack>
-                      <Box
-                        p={6}
-                        bg={useColorModeValue('gray.50', 'gray.700')}
-                        borderRadius="lg"
-                        maxH="500px"
-                        overflowY="auto"
-                        border="1px"
-                        borderColor={borderColor}
-                      >
-                        <ReactMarkdown>{readme}</ReactMarkdown>
-                      </Box>
-                    </VStack>
-                  </CardBody>
-                </Card>
-              )}
-            </VStack>
-          )}
+                    </Tab>
+                    <Tab 
+                      borderRadius="lg" 
+                      mr={2}
+                      _selected={{ bg: cardBg, color: accentColor }}
+                    >
+                      <HStack spacing={2}>
+                        <Icon as={FiCode} />
+                        <Text>Code Structure</Text>
+                        {stats && (
+                          <Badge colorScheme="blue" size="sm" variant="subtle">
+                            {stats.total_files}
+                          </Badge>
+                        )}
+                      </HStack>
+                    </Tab>
+                    <Tab 
+                      borderRadius="lg"
+                      _selected={{ bg: cardBg, color: accentColor }}
+                    >
+                      <HStack spacing={2}>
+                        <Icon as={FiMessageSquare} />
+                        <Text>Q&A</Text>
+                      </HStack>
+                    </Tab>
+                  </TabList>
 
-          {/* Question Section */}
-          <Card bg={cardBg} border="1px" borderColor={borderColor} borderRadius="xl" shadow="lg">
-            <CardBody p={8}>
-              <VStack spacing={6}>
-                <HStack spacing={3}>
-                  <Icon as={FiMessageSquare} w={6} h={6} color="green.500" />
-                  <Heading size="md">Ask Questions</Heading>
-                </HStack>
-                <VStack spacing={4} w="full">
-                  <Textarea
-                    size="lg"
-                    placeholder="Ask a question about the repository (e.g., 'How does the authentication work?' or 'What are the main components?')"
-                    value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
-                    rows={4}
-                    borderColor={borderColor}
-                    _focus={{ borderColor: 'green.500', boxShadow: '0 0 0 1px var(--chakra-colors-green-500)' }}
-                  />
-                  <Button
-                    size="lg"
-                    colorScheme="green"
-                    onClick={askQuestion}
-                    isLoading={isAsking}
-                    loadingText="Generating Answer..."
-                    leftIcon={<FiMessageSquare />}
-                    w="full"
-                    h={12}
-                    isDisabled={!summary}
-                  >
-                    {isAsking ? 'Thinking...' : 'Ask Question'}
-                  </Button>
-                </VStack>
-                {isAsking && (
-                  <VStack spacing={3} w="full">
-                    <Progress size="sm" isIndeterminate colorScheme="green" w="full" />
-                    <Text fontSize="sm" color="gray.500">
-                      Analyzing code and generating answer...
-                    </Text>
-                  </VStack>
-                )}
-              </VStack>
-            </CardBody>
-          </Card>
+                  <TabPanels>
+                    {/* Enhanced Summary Tab */}
+                    <TabPanel>
+                      <VStack spacing={4} align="stretch">
+                        <HStack spacing={3}>
+                          <Icon as={FiCheckCircle} w={5} h={5} color={successColor} />
+                          <Heading size="md" color={textColor}>Repository Summary</Heading>
+                        </HStack>
+                        
+                        {stats && (
+                          <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={6}>
+                            <Stat>
+                              <StatNumber color={accentColor} fontSize="2xl">{stats.total_files}</StatNumber>
+                              <StatLabel color={mutedTextColor}>Total Files</StatLabel>
+                            </Stat>
+                            <Stat>
+                              <StatNumber color={successColor} fontSize="2xl">{stats.python_files}</StatNumber>
+                              <StatLabel color={mutedTextColor}>Python Files</StatLabel>
+                            </Stat>
+                            <Stat>
+                              <StatNumber color={warningColor} fontSize="2xl">{stats.js_files}</StatNumber>
+                              <StatLabel color={mutedTextColor}>JS/TS Files</StatLabel>
+                            </Stat>
+                            <Stat>
+                              <StatNumber color={errorColor} fontSize="2xl">{stats.total_functions}</StatNumber>
+                              <StatLabel color={mutedTextColor}>Functions</StatLabel>
+                            </Stat>
+                          </SimpleGrid>
+                        )}
+                        
+                        <Box 
+                          p={6} 
+                          bg={useColorModeValue('gray.50', 'gray.700')} 
+                          borderRadius="xl"
+                          border="1px"
+                          borderColor={borderColor}
+                        >
+                          <ReactMarkdown>{summary}</ReactMarkdown>
+                        </Box>
+                      </VStack>
+                    </TabPanel>
 
-          {/* Answer Section */}
-          {answer && (
-            <Card bg={cardBg} border="1px" borderColor={borderColor} borderRadius="xl" shadow="lg">
-              <CardBody p={8}>
-                <VStack spacing={4} align="stretch">
-                  <HStack spacing={3}>
-                    <Icon as={FiZap} w={5} h={5} color="orange.500" />
-                    <Heading size="md">Answer</Heading>
-                  </HStack>
-                  <Box 
-                    p={6} 
-                    bg={useColorModeValue('gray.50', 'gray.700')} 
-                    borderRadius="lg"
-                    border="1px"
-                    borderColor={borderColor}
-                  >
-                    <Text fontSize="md" lineHeight="1.7">{answer}</Text>
-                  </Box>
-                </VStack>
+                    {/* Enhanced README Tab */}
+                    <TabPanel>
+                      <VStack spacing={4} align="stretch">
+                        <HStack spacing={3}>
+                          <Icon as={FiBookOpen} w={5} h={5} color={warningColor} />
+                          <Heading size="md" color={textColor}>README Content</Heading>
+                        </HStack>
+                        <Box
+                          p={6}
+                          bg={useColorModeValue('gray.50', 'gray.700')}
+                          borderRadius="xl"
+                          maxH="600px"
+                          overflowY="auto"
+                          border="1px"
+                          borderColor={borderColor}
+                        >
+                          <ReactMarkdown>{readme}</ReactMarkdown>
+                        </Box>
+                      </VStack>
+                    </TabPanel>
+
+                    {/* Enhanced Code Structure Tab */}
+                    <TabPanel>
+                      <VStack spacing={4} align="stretch">
+                        <HStack spacing={3}>
+                          <Icon as={FiCode} w={5} h={5} color={accentColor} />
+                          <Heading size="md" color={textColor}>Code Structure</Heading>
+                        </HStack>
+                        <Box
+                          p={6}
+                          bg={useColorModeValue('gray.50', 'gray.700')}
+                          borderRadius="xl"
+                          maxH="600px"
+                          overflowY="auto"
+                          border="1px"
+                          borderColor={borderColor}
+                        >
+                          {renderCodeStructure()}
+                        </Box>
+                      </VStack>
+                    </TabPanel>
+
+                    {/* Enhanced Q&A Tab */}
+                    <TabPanel>
+                      <VStack spacing={6}>
+                        <HStack spacing={3}>
+                          <Icon as={FiMessageSquare} w={6} h={6} color={successColor} />
+                          <Heading size="md" color={textColor}>Ask Questions</Heading>
+                        </HStack>
+                        <VStack spacing={4} w="full">
+                          <Textarea
+                            size="lg"
+                            placeholder="Ask a question about the repository (e.g., 'How does the authentication work?' or 'What are the main components?')"
+                            value={question}
+                            onChange={(e) => setQuestion(e.target.value)}
+                            rows={4}
+                            borderColor={borderColor}
+                            borderRadius="xl"
+                            _focus={{ 
+                              borderColor: successColor, 
+                              boxShadow: `0 0 0 1px ${successColor}`,
+                              transform: 'scale(1.02)'
+                            }}
+                            transition="all 0.2s"
+                          />
+                          <Button
+                            size="lg"
+                            colorScheme="green"
+                            onClick={askQuestion}
+                            isLoading={isAsking}
+                            loadingText="Generating Answer..."
+                            leftIcon={<FiMessageSquare />}
+                            w="full"
+                            h={14}
+                            borderRadius="xl"
+                            isDisabled={!summary}
+                            _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
+                            transition="all 0.2s"
+                          >
+                            {isAsking ? 'Thinking...' : 'Ask Question'}
+                          </Button>
+                        </VStack>
+                        {isAsking && (
+                          <VStack spacing={3} w="full">
+                            <Progress 
+                              size="sm" 
+                              isIndeterminate 
+                              colorScheme="green" 
+                              w="full" 
+                              borderRadius="full"
+                            />
+                            <Text fontSize="sm" color={mutedTextColor}>
+                              <Icon as={FiActivity} mr={2} />
+                              Thinking...
+                            </Text>
+                          </VStack>
+                        )}
+
+                        {/* Enhanced Answer Section */}
+                        {answer && (
+                          <VStack spacing={4} align="stretch" w="full">
+                            <HStack spacing={3}>
+                              <Icon as={FiZap} w={5} h={5} color={warningColor} />
+                              <Heading size="md" color={textColor}>Answer</Heading>
+                            </HStack>
+                            
+                            {contextFiles.length > 0 && (
+                              <Box>
+                                <Text fontSize="sm" fontWeight="semibold" mb={2} color={mutedTextColor}>
+                                  <Icon as={FiFile} mr={2} />
+                                  Based on files: {contextFiles.slice(0, 3).join(', ')}
+                                  {contextFiles.length > 3 && ` and ${contextFiles.length - 3} more`}
+                                </Text>
+                              </Box>
+                            )}
+                            
+                            <Box 
+                              p={6} 
+                              bg={useColorModeValue('gray.50', 'gray.700')} 
+                              borderRadius="xl"
+                              border="1px"
+                              borderColor={borderColor}
+                            >
+                              <ReactMarkdown>{answer}</ReactMarkdown>
+                            </Box>
+                          </VStack>
+                        )}
+                      </VStack>
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
               </CardBody>
             </Card>
           )}
         </VStack>
 
-        {/* Features Section */}
+        {/* Enhanced Features Section */}
         <Box mt={20}>
           <VStack spacing={12}>
             <VStack spacing={4} textAlign="center">
-              <Heading size="xl" bgGradient="linear(to-r, blue.600, purple.600)" bgClip="text">
+              <Badge colorScheme="purple" variant="subtle" px={3} py={1} borderRadius="full">
                 Why Choose GitGenie?
+              </Badge>
+              <Heading size="xl" bgGradient="linear(to-r, blue.600, purple.600)" bgClip="text">
+                Powerful AI Features
               </Heading>
-              <Text fontSize="lg" color="gray.600" maxW="2xl">
-                Powerful AI features designed to make code exploration effortless and insightful.
+              <Text fontSize="lg" color={mutedTextColor} maxW="2xl">
+                Designed to make code exploration effortless and insightful.
               </Text>
             </VStack>
 
             <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8} w="full">
               {features.map((feature, index) => (
-                <Card key={index} bg={cardBg} border="1px" borderColor={borderColor} borderRadius="xl" shadow="md" p={6}>
+                <Card 
+                  key={index} 
+                  bg={cardBg} 
+                  border="1px" 
+                  borderColor={borderColor} 
+                  borderRadius="2xl" 
+                  shadow="lg" 
+                  p={6}
+                  _hover={{ 
+                    transform: 'translateY(-8px)', 
+                    shadow: '2xl',
+                    borderColor: `${feature.color}.300`
+                  }}
+                  transition="all 0.3s"
+                >
                   <VStack spacing={4} textAlign="center">
-                    <Box p={3} bg="blue.100" borderRadius="full">
-                      <Icon as={feature.icon} w={6} h={6} color="blue.600" />
+                    <Box 
+                      p={4} 
+                      bg={`${feature.color}.100`} 
+                      borderRadius="full"
+                      color={`${feature.color}.600`}
+                    >
+                      <Icon as={feature.icon} w={8} h={8} />
                     </Box>
-                    <Heading size="md">{feature.title}</Heading>
-                    <Text fontSize="sm" color="gray.600">{feature.description}</Text>
+                    <Heading size="md" color={textColor}>{feature.title}</Heading>
+                    <Text fontSize="sm" color={mutedTextColor} lineHeight="1.6">{feature.description}</Text>
                   </VStack>
                 </Card>
               ))}
@@ -539,18 +992,51 @@ function App() {
         </Box>
       </Container>
 
-      {/* Footer */}
-      <Box as="footer" py={8} mt={20} borderTop="1px" borderColor={borderColor} bg={cardBg}>
+      {/* Enhanced Footer */}
+      <Box 
+        as="footer" 
+        py={12} 
+        mt={20} 
+        borderTop="1px" 
+        borderColor={borderColor} 
+        bg={useColorModeValue('gray.50', 'gray.800')}
+      >
         <Container maxW="container.xl">
-          <Flex justify="space-between" align="center" direction={{ base: 'column', md: 'row' }} gap={4}>
-            <HStack spacing={3}>
-              <Icon as={FiGithub} w={6} h={6} color="blue.500" />
-              <Text fontWeight="bold">GitGenie</Text>
-            </HStack>
-            <Text fontSize="sm" color="gray.500">
-              Powered by Ollama & Advanced AI • Made with ❤️ for developers
+          <VStack spacing={8}>
+            <Flex justify="space-between" align="center" direction={{ base: 'column', md: 'row' }} gap={4} w="full">
+              <HStack spacing={3}>
+                <Avatar size="sm" bg={accentColor} icon={<FiGithub />} name="GitGenie" />
+                <VStack align="start" spacing={0}>
+                  <Text fontWeight="bold" color={textColor}>GitGenie</Text>
+                  <Text fontSize="xs" color={mutedTextColor}>AI-Powered Code Analysis</Text>
+                </VStack>
+              </HStack>
+              <HStack spacing={6}>
+                <Link href="#" color={mutedTextColor} _hover={{ color: accentColor }}>
+                  <HStack spacing={2}>
+                    <Icon as={FiShield} />
+                    <Text>Privacy</Text>
+                  </HStack>
+                </Link>
+                <Link href="#" color={mutedTextColor} _hover={{ color: accentColor }}>
+                  <HStack spacing={2}>
+                    <Icon as={FiFile} />
+                    <Text>Terms</Text>
+                  </HStack>
+                </Link>
+                <Link href="#" color={mutedTextColor} _hover={{ color: accentColor }}>
+                  <HStack spacing={2}>
+                    <Icon as={FiMessageSquare} />
+                    <Text>Support</Text>
+                  </HStack>
+                </Link>
+              </HStack>
+            </Flex>
+            <Divider borderColor={borderColor} />
+            <Text fontSize="sm" color={mutedTextColor} textAlign="center">
+              Powered by OpenAI & Advanced AI • Made with ❤️ for developers
             </Text>
-          </Flex>
+          </VStack>
         </Container>
       </Box>
     </Box>
