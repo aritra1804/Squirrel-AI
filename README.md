@@ -1,78 +1,132 @@
-# GitGenie - The AI-Powered Repository Assistant
+# GitGenie - AI-Powered GitHub Repository Analyzer
 
-GitGenie is a Python-based tool that leverages Llama 3.2 and Langchain to help you understand any GitHub repository. Whether you're a newcomer or an experienced developer, GitGenie answers your questions and provides clear insights into repository structures, code, and documentation.
+🚀 **Understand any GitHub repository instantly with AI-powered analysis and intelligent Q&A.**
 
-## How It Works
+GitGenie is a modern web application that uses advanced AI to analyze GitHub repositories, provide intelligent summaries, and answer questions about codebases in real-time.
 
-- **Natural Language Query**: Ask questions in plain English, and GitGenie uses Llama 3.2 and Langchain to analyze and respond with detailed explanations.
-- **In-Depth Repository Analysis**: Obtain information on file structures, code snippets, and documentation.
-- **Real-Time AI Assistance**: Get instant, contextually aware responses as you explore any GitHub project.
+## ✨ Features
 
-## Features
+- **🤖 AI-Powered Analysis**: Advanced repository analysis using Ollama and sentence transformers
+- **💬 Interactive Q&A**: Ask questions about any part of the codebase and get intelligent answers
+- **⚡ Lightning Fast**: Powered by Ollama for quick, accurate responses
+- **🌐 Multi-Language Support**: Supports Python, JavaScript, TypeScript, Java, Go, C++, C, and Ruby
+- **🎨 Modern UI**: Beautiful, responsive design built with React and Chakra UI
+- **🆓 Completely Free**: No API keys or subscriptions required
 
-- **Instant Insights**: Quickly summarize files and code segments.
-- **Interactive Learning**: Navigate and understand complex codebases through natural language queries.
-- **Enhanced Navigation**: Easily locate key functions, files, and documentation.
+## 🛠️ Tech Stack
 
-## Installation
+### Frontend
+- **React 18** with TypeScript
+- **Chakra UI** for beautiful, accessible components
+- **Vite** for fast development and building
+- **React Icons** for consistent iconography
+- **Axios** for API communication
 
-1. **Clone the Repository**  
-    ```bash
-    git clone https://github.com/your-username/GitGenie.git
-    cd GitGenie
-    ```
+### Backend
+- **FastAPI** for high-performance API
+- **Ollama** for local LLM inference
+- **ChromaDB** for vector storage and similarity search
+- **Sentence Transformers** for text embeddings
+- **Python 3.12+**
 
-2. **Set Up Virtual Environment**  
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows use: venv\Scripts\activate
-    ```
+## 🚀 Quick Start
 
-3. **Install Dependencies**  
-    Ensure you have Python installed. Install the required packages:
-    ```bash
-    pip install -r requirements.txt
-    ```
+### Prerequisites
+- Python 3.12+
+- Node.js 18+
+- Git
+- Ollama (for local LLM)
 
-4. **Configuration**  
-    Copy the example configuration to configure GitGenie:
-    ```bash
-    cp config.example.json config.json
-    ```
+### Installation
 
-## Usage
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd gitgenie
+   ```
 
-- **Start GitGenie**  
-  Run the main script to launch the assistant:
-  ```bash
-  python gitgenie.py
-  ```
+2. **Install Ollama and pull the model**
+   ```bash
+   # Install Ollama (https://ollama.com)
+   ollama pull llama3.2
+   ```
 
-- **Ask Questions**  
-  Input your natural language queries about any GitHub repository. GitGenie will respond with detailed insights powered by Llama 3.2 and Langchain.
+3. **Start Ollama**
+   ```bash
+   ollama serve
+   ```
 
-## Contributing
+4. **Set up the backend**
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   python main.py
+   ```
 
-Contributions to GitGenie are welcome. To contribute:
+5. **Set up the frontend**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
 
-1. Fork the repository.
-2. Create a new feature branch:  
-    ```bash
-    git checkout -b feature/YourFeature
-    ```
-3. Commit your changes with clear, descriptive messages.
-4. Push the branch:  
-    ```bash
-    git push origin feature/YourFeature
-    ```
-5. Open a Pull Request.
+6. **Open your browser**
+   Navigate to `http://localhost:5173`
 
-## License
+## 📖 Usage
 
-GitGenie is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+1. **Enter a GitHub repository URL** in the input field
+2. **Click "Analyze Repository"** to get an AI-generated summary
+3. **Ask questions** about the codebase using the Q&A feature
+4. **Explore the README** and code insights
 
-## Contact
+### Example Questions
+- "How does the authentication work?"
+- "What are the main components?"
+- "Explain the project structure"
+- "How do I run this project?"
 
-For support or to ask questions about GitGenie, please open an issue on [GitHub](https://github.com/your-username/GitGenie/issues).
+## 🎨 Design Features
 
-Happy exploring!
+- **Professional Branding**: Clean, modern design with consistent branding
+- **Responsive Layout**: Works perfectly on desktop, tablet, and mobile
+- **Interactive Elements**: Hover effects, loading states, and smooth animations
+- **Accessibility**: Built with accessibility in mind using Chakra UI
+- **Dark Mode Ready**: Theme system supports both light and dark modes
+
+## 🔧 Configuration
+
+### Environment Variables
+Create a `.env` file in the backend directory:
+```env
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=llama3.2
+```
+
+### Customization
+- **Colors**: Modify the theme in `frontend/src/theme.ts`
+- **API Endpoints**: Update `API_URL` in `frontend/src/App.tsx`
+- **Supported Languages**: Edit the `exts` list in `backend/main.py`
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Ollama** for providing local LLM capabilities
+- **Chakra UI** for the beautiful component library
+- **FastAPI** for the high-performance backend framework
+- **Sentence Transformers** for text embedding capabilities
+
+---
+
+**Made with ❤️ for developers who want to understand code faster.**
