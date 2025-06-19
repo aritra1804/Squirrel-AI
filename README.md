@@ -35,14 +35,12 @@ Squirrel AI is a playful, AI-powered developer hub that lets you play with any G
 
 ## 🎥 Demo
 
-> **Watch Squirrel AI in action:**
+[▶️ **Watch Demo**](/demo.mp4)
 
-<video src="./demo.mp4" controls style="max-width: 100%; border-radius: 1rem; margin-bottom: 1rem;" poster="./s1.png"></video>
+[![Demo Thumbnail](./s3.png)](/demo.mp4)
 
-### Screenshots
+## 🖼️ Screenshots
 
-| Home / Analyze | Code Structure | Q&A Chat | Example Modal |
-|:-------------:|:--------------:|:--------:|:-------------:|
 | ![Home](./s1.png) | ![Code Structure](./s2.png) | ![Q&A](./s3.png) | ![Examples](./s4.png) |
 
 ## 🚀 Quick Start
@@ -197,3 +195,5 @@ Error: Out of memory during analysis
 - Use smaller repositories for testing
 
 ---
+
+
