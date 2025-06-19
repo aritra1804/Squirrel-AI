@@ -7,8 +7,8 @@ const theme = extendTheme({
     disableTransitionOnChange: false,
   },
   fonts: {
-    heading: `'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`,
-    body: `'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`,
+    heading: `'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif`,
+    body: `'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif`,
   },
   colors: {
     brand: {
@@ -100,7 +100,7 @@ const theme = extendTheme({
   styles: {
     global: (props: any) => ({
       body: {
-        bg: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%)',
+        bg: 'linear-gradient(135deg, #181c2b 0%, #232946 50%, #181c2b 100%)',
         color: 'gray.100',
         minHeight: '100vh',
         backgroundAttachment: 'fixed',
@@ -114,7 +114,7 @@ const theme = extendTheme({
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%)',
+          background: 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.18) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.18) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.12) 0%, transparent 50%)',
           pointerEvents: 'none',
           zIndex: -1,
         },
@@ -125,7 +125,7 @@ const theme = extendTheme({
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.02"%3E%3Ccircle cx="30" cy="30" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+          background: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ffffff\' fill-opacity=\'0.02\'%3E%3Ccircle cx=\'30\' cy=\'30\' r=\'1\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
           pointerEvents: 'none',
           zIndex: -1,
         },
@@ -213,16 +213,30 @@ const theme = extendTheme({
     Card: {
       baseStyle: {
         container: {
-          bg: 'gray.800',
-          borderRadius: 'xl',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',
-          border: '1px solid',
-          borderColor: 'gray.700',
+          bg: 'rgba(24, 28, 43, 0.7)',
+          borderRadius: '2xl',
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+          border: '1.5px solid',
+          borderColor: 'rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(16px)',
           _hover: {
-            transform: 'translateY(-4px)',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3)',
+            transform: 'translateY(-4px) scale(1.01)',
+            boxShadow: '0 20px 40px 0 rgba(31, 38, 135, 0.25)',
+            borderColor: 'rgba(255,255,255,0.18)',
           },
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        },
+      },
+    },
+    Modal: {
+      baseStyle: {
+        dialog: {
+          bg: 'rgba(24, 28, 43, 0.85)',
+          borderRadius: '2xl',
+          border: '1.5px solid',
+          borderColor: 'rgba(255,255,255,0.12)',
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+          backdropFilter: 'blur(18px)',
         },
       },
     },
@@ -233,14 +247,14 @@ const theme = extendTheme({
       variants: {
         filled: {
           field: {
-            bg: 'gray.700',
-            borderColor: 'gray.600',
+            bg: 'rgba(31, 38, 56, 0.7)',
+            borderColor: 'rgba(255,255,255,0.10)',
             color: 'gray.100',
             _hover: {
-              bg: 'gray.600',
+              bg: 'rgba(31, 38, 56, 0.85)',
             },
             _focus: {
-              bg: 'gray.600',
+              bg: 'rgba(31, 38, 56, 0.95)',
               borderColor: 'blue.400',
               boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)',
             },
@@ -254,14 +268,14 @@ const theme = extendTheme({
       },
       variants: {
         filled: {
-          bg: 'gray.700',
-          borderColor: 'gray.600',
+          bg: 'rgba(31, 38, 56, 0.7)',
+          borderColor: 'rgba(255,255,255,0.10)',
           color: 'gray.100',
           _hover: {
-            bg: 'gray.600',
+            bg: 'rgba(31, 38, 56, 0.85)',
           },
           _focus: {
-            bg: 'gray.600',
+            bg: 'rgba(31, 38, 56, 0.95)',
             borderColor: 'blue.400',
             boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)',
           },
@@ -270,8 +284,20 @@ const theme = extendTheme({
     },
     Heading: {
       baseStyle: {
-        fontWeight: '700',
-        letterSpacing: '-0.025em',
+        fontWeight: '800',
+        letterSpacing: '-0.035em',
+        lineHeight: '1.1',
+      },
+      sizes: {
+        '2xl': {
+          fontSize: ['2.5rem', '3.5rem'],
+        },
+        xl: {
+          fontSize: ['2rem', '2.5rem'],
+        },
+        lg: {
+          fontSize: ['1.5rem', '2rem'],
+        },
       },
     },
     Badge: {
