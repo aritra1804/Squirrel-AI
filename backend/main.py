@@ -177,14 +177,15 @@ def clone_and_prepare(repo_url: str):
             raise RuntimeError("Failed to clone repository. Check the URL or your network.")
     repo_path = repo_dir
 
-    # 2. SET UP IN‐MEMORY CHROMA CLIENT
+    # 2. SET UP IN‐MEMORY CHROMA CLIENT (per-repo collection)
     client = chromadb.Client()
+    collection_name = f"repo_chunks_{repo_hash}"
     try:
-        collection = client.get_collection("repo_chunks")
+        collection = client.get_collection(collection_name)
         if collection.count() > 0:
             return repo_path, collection, _load_readme(repo_path), parse_code_files(repo_path)
     except Exception:
-        collection = client.create_collection("repo_chunks")
+        collection = client.create_collection(collection_name)
 
     # 3. PARSE CODE FILES INTO CHUNKS
     code_chunks = []
@@ -402,15 +403,38 @@ async def analyze_repository(request: AnalyzeRequest):
         
         # Calculate statistics
         total_files = len(code_structure)
-        python_files = len([f for f in code_structure.keys() if f.endswith('.py')])
-        js_files = len([f for f in code_structure.keys() if f.endswith(('.js', '.jsx', '.ts', '.tsx'))])
+        # Dynamically count files by extension
+        ext_counts = {}
+        for f in code_structure.keys():
+            ext = f.split('.')[-1] if '.' in f else 'other'
+            ext_counts[ext] = ext_counts.get(ext, 0) + 1
+        # Optionally, map common extensions to language names
+        ext_to_lang = {
+            'py': 'Python',
+            'js': 'JavaScript',
+            'ts': 'TypeScript',
+            'java': 'Java',
+            'go': 'Go',
+            'cpp': 'C++',
+            'c': 'C',
+            'rb': 'Ruby',
+            'php': 'PHP',
+            'html': 'HTML',
+            'css': 'CSS',
+            'jsx': 'JSX',
+            'tsx': 'TSX',
+        }
+        lang_counts = {}
+        for ext, count in ext_counts.items():
+            lang = ext_to_lang.get(ext, ext.upper())
+            lang_counts[lang] = lang_counts.get(lang, 0) + count
+        
         total_functions = sum(len(structure.get('functions', [])) for structure in code_structure.values())
         total_classes = sum(len(structure.get('classes', [])) for structure in code_structure.values())
         
         stats = {
             "total_files": total_files,
-            "python_files": python_files,
-            "js_files": js_files,
+            "languages": lang_counts,
             "total_functions": total_functions,
             "total_classes": total_classes
         }

@@ -1,2 +1,4 @@
 cached_repos/
+__pycache__/
 .env
+node_modules/

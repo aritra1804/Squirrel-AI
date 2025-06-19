@@ -7,4 +7,8 @@ sentence-transformers==2.2.2
 huggingface-hub==0.19.4
 python-multipart==0.0.6
 ollama==0.1.6
-python-dotenv==1.0.0 
+python-dotenv==1.0.0
+fastapi-users[sqlalchemy,postgresql]
+sqlalchemy
+asyncpg
+alembic 

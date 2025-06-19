@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   Box,
   VStack,
@@ -57,6 +57,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import axios from 'axios'
 import { 
   FiGithub, 
@@ -103,6 +104,7 @@ import {
   FiMaximize2,
   FiMinimize2,
   FiX,
+  FiUser,
 } from 'react-icons/fi'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -138,6 +140,7 @@ interface Stats {
   js_files: number;
   total_functions: number;
   total_classes: number;
+  languages?: Record<string, number>;
 }
 
 interface AnalyzeResponse {
@@ -170,6 +173,15 @@ function App() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const toast = useToast()
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [chatHistory, setChatHistory] = useState<{role: 'user'|'ai', message: string}[]>([]);
+  const chatBoxRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom on new message
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
 
   // Dark mode color scheme
   const cardBg = 'gray.800'
@@ -195,8 +207,9 @@ function App() {
     }
   }
 
-  const analyzeRepo = async () => {
-    if (!repoUrl) {
+  const analyzeRepo = async (urlOverride?: string) => {
+    const urlToAnalyze = urlOverride ?? repoUrl;
+    if (!urlToAnalyze) {
       toast({
         title: 'Error',
         description: 'Please enter a GitHub repository URL',
@@ -207,7 +220,7 @@ function App() {
       return
     }
 
-    if (!validateGitHubUrl(repoUrl)) {
+    if (!validateGitHubUrl(urlToAnalyze)) {
       toast({
         title: 'Invalid URL',
         description: 'Please enter a valid GitHub repository URL (e.g., https://github.com/username/repo)',
@@ -221,12 +234,14 @@ function App() {
     setIsAnalyzing(true)
     setError(null)
     try {
-      const response = await axios.post<AnalyzeResponse>(`${API_URL}/analyze`, { url: repoUrl })
+      const response = await axios.post<AnalyzeResponse>(`${API_URL}/analyze`, { url: urlToAnalyze })
       setSummary(response.data.summary)
       setReadme(response.data.readme)
       setCodeStructure(response.data.code_structure)
       setStats(response.data.stats)
-      setAnswer('')
+      setChatHistory([]);
+      setQuestion('');
+      setAnswer('');
       setContextFiles([])
       setActiveTab(0)
       toast({
@@ -253,62 +268,22 @@ function App() {
     setIsAnalyzing(false)
   }
 
-  const askQuestion = async () => {
-    if (!question || !repoUrl) {
-      toast({
-        title: 'Error',
-        description: 'Please enter both a repository URL and a question',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      })
-      return
-    }
-
-    if (!validateGitHubUrl(repoUrl)) {
-      toast({
-        title: 'Invalid URL',
-        description: 'Please enter a valid GitHub repository URL (e.g., https://github.com/username/repo)',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      })
-      return
-    }
-
-    setIsAsking(true)
-    setError(null)
+  const handleSendQuestion = async () => {
+    if (!question.trim()) return;
+    setChatHistory((prev) => [...prev, { role: 'user', message: question }]);
+    setQuestion('');
+    setIsAsking(true);
     try {
       const response = await axios.post<QuestionResponse>(`${API_URL}/ask`, {
         question,
         repo_url: repoUrl,
-      })
-      setAnswer(response.data.answer)
-      setContextFiles(response.data.context_files)
-      setActiveTab(3) // Switch to Q&A tab
-      toast({
-        title: 'Answer Generated!',
-        description: 'Your question has been answered',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      })
+      });
+      setChatHistory((prev) => [...prev, { role: 'ai', message: response.data.answer }]);
     } catch (error) {
-      let errorMessage = 'Failed to get answer'
-      if (axios.isAxiosError(error) && error.response) {
-        errorMessage = error.response.data.detail || errorMessage
-      }
-      setError(errorMessage)
-      toast({
-        title: 'Error',
-        description: errorMessage,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      })
+      setChatHistory((prev) => [...prev, { role: 'ai', message: 'Failed to get answer.' }]);
     }
-    setIsAsking(false)
-  }
+    setIsAsking(false);
+  };
 
   // Example repositories
   const exampleRepos = [
@@ -368,11 +343,12 @@ function App() {
     onClose();
     toast({
       title: 'Example loaded!',
-      description: 'Click "Analyze Repository" to get started',
-      status: 'info',
+      description: 'Analyzing repository...'
+      ,status: 'info',
       duration: 3000,
       isClosable: true,
     });
+    setTimeout(() => analyzeRepo(url), 0); // Ensure state is updated before analyzing
   };
 
   const renderCodeStructure = () => {
@@ -625,6 +601,106 @@ function App() {
             </HStack>
           </VStack>
 
+          {/* Demo Video Section */}
+          <VStack spacing={8} mb={16}>
+            <VStack spacing={4} textAlign="center">
+              <Badge 
+                colorScheme="green" 
+                variant="subtle" 
+                px={3} 
+                py={1} 
+                borderRadius="full"
+              >
+                <HStack spacing={2}>
+                  <Icon as={FiPlay} />
+                  <Text>See It In Action</Text>
+                </HStack>
+              </Badge>
+              <Heading size="xl" bgGradient="linear(to-r, green.400, blue.400)" bgClip="text">
+                Watch Squirrel AI Work
+              </Heading>
+              <Text fontSize="lg" color={mutedTextColor} maxW="2xl">
+                See how Squirrel AI analyzes repositories and answers questions in real-time
+              </Text>
+            </VStack>
+            <Card 
+              bg={cardBg} 
+              border="1px" 
+              borderColor={borderColor} 
+              borderRadius="2xl" 
+              shadow="xl"
+              overflow="hidden"
+              backdropFilter="blur(20px)"
+              maxW="4xl"
+              w="full"
+              _hover={{ 
+                transform: 'translateY(-4px)', 
+                shadow: '2xl',
+                borderColor: 'green.400'
+              }}
+              transition="all 0.3s"
+            >
+              <CardBody p={0} position="relative">
+                <video
+                  ref={videoRef}
+                  src="/demo.mp4"
+                  controls
+                  style={{ width: '100%', height: 'auto', borderRadius: '1rem', display: 'block', background: 'black' }}
+                  onPlay={() => setIsVideoPlaying(true)}
+                  onPause={() => setIsVideoPlaying(false)}
+                  onEnded={() => setIsVideoPlaying(false)}
+                />
+                {/* Video Overlay with Play Icon - Only show when not playing */}
+                {!isVideoPlaying && (
+                  <Box
+                    position="absolute"
+                    top="50%"
+                    left="50%"
+                    transform="translate(-50%, -50%)"
+                    pointerEvents="none"
+                    opacity={0.85}
+                    zIndex={1}
+                  >
+                    <Box
+                      bg="rgba(0, 0, 0, 0.0)"
+                      borderRadius="full"
+                      p={4}
+                    >
+                      <Icon as={FiPlay} w={16} h={16} color="white" />
+                    </Box>
+                  </Box>
+                )}
+              </CardBody>
+            </Card>
+            {/* Call to Action */}
+            <VStack spacing={4} pt={4}>
+              <Text fontSize="lg" color={mutedTextColor} textAlign="center">
+                Ready to analyze your own repositories?
+              </Text>
+              <Button
+                size="lg"
+                colorScheme="green"
+                leftIcon={<FiGithub />}
+                onClick={() => document.getElementById('repo-input')?.focus()}
+                borderRadius="full"
+                px={8}
+                bgGradient="linear(to-r, green.500, green.600)"
+                _hover={{ 
+                  transform: 'translateY(-2px)', 
+                  boxShadow: '0 10px 25px -5px rgba(34, 197, 94, 0.4)',
+                  bgGradient: 'linear(to-r, green.600, green.700)'
+                }}
+                _active={{
+                  transform: 'translateY(0)',
+                  bgGradient: 'linear(to-r, green.700, green.800)'
+                }}
+                transition="all 0.2s"
+              >
+                Play with Squirrel AI Now
+              </Button>
+            </VStack>
+          </VStack>
+
           {/* Enhanced Stats */}
           <SimpleGrid columns={{ base: 1, md: 4 }} spacing={8} w="full" maxW="3xl">
             <Stat textAlign="center">
@@ -672,108 +748,6 @@ function App() {
               <StatLabel color={mutedTextColor}>Powered</StatLabel>
             </Stat>
           </SimpleGrid>
-        </VStack>
-
-        {/* Demo Video Section */}
-        <VStack spacing={8} mb={16}>
-          <VStack spacing={4} textAlign="center">
-            <Badge 
-              colorScheme="green" 
-              variant="subtle" 
-              px={3} 
-              py={1} 
-              borderRadius="full"
-            >
-              <HStack spacing={2}>
-                <Icon as={FiPlay} />
-                <Text>See It In Action</Text>
-              </HStack>
-            </Badge>
-            <Heading size="xl" bgGradient="linear(to-r, green.400, blue.400)" bgClip="text">
-              Watch Squirrel AI Work
-            </Heading>
-            <Text fontSize="lg" color={mutedTextColor} maxW="2xl">
-              See how Squirrel AI analyzes repositories and answers questions in real-time
-            </Text>
-          </VStack>
-          
-          <Card 
-            bg={cardBg} 
-            border="1px" 
-            borderColor={borderColor} 
-            borderRadius="2xl" 
-            shadow="xl"
-            overflow="hidden"
-            backdropFilter="blur(20px)"
-            maxW="4xl"
-            w="full"
-            _hover={{ 
-              transform: 'translateY(-4px)', 
-              shadow: '2xl',
-              borderColor: 'green.400'
-            }}
-            transition="all 0.3s"
-          >
-            <CardBody p={0} position="relative">
-              <video
-                ref={videoRef}
-                src="/test.mp4"
-                controls
-                style={{ width: '100%', height: 'auto', borderRadius: '1rem', display: 'block', background: 'black' }}
-                onPlay={() => setIsVideoPlaying(true)}
-                onPause={() => setIsVideoPlaying(false)}
-                onEnded={() => setIsVideoPlaying(false)}
-              />
-              {/* Video Overlay with Play Icon - Only show when not playing */}
-              {!isVideoPlaying && (
-                <Box
-                  position="absolute"
-                  top="50%"
-                  left="50%"
-                  transform="translate(-50%, -50%)"
-                  pointerEvents="none"
-                  opacity={0.85}
-                  zIndex={1}
-                >
-                  <Box
-                    bg="rgba(0, 0, 0, 0.0)"
-                    borderRadius="full"
-                    p={4}
-                  >
-                    <Icon as={FiPlay} w={16} h={16} color="white" />
-                  </Box>
-                </Box>
-              )}
-            </CardBody>
-          </Card>
-          
-          {/* Call to Action */}
-          <VStack spacing={4} pt={4}>
-            <Text fontSize="lg" color={mutedTextColor} textAlign="center">
-              Ready to analyze your own repositories?
-            </Text>
-            <Button
-              size="lg"
-              colorScheme="green"
-              leftIcon={<FiGithub />}
-              onClick={() => document.getElementById('repo-input')?.focus()}
-              borderRadius="full"
-              px={8}
-              bgGradient="linear(to-r, green.500, green.600)"
-              _hover={{ 
-                transform: 'translateY(-2px)', 
-                boxShadow: '0 10px 25px -5px rgba(34, 197, 94, 0.4)',
-                bgGradient: 'linear(to-r, green.600, green.700)'
-              }}
-              _active={{
-                transform: 'translateY(0)',
-                bgGradient: 'linear(to-r, green.700, green.800)'
-              }}
-              transition="all 0.2s"
-            >
-              Play with Squirrel AI Now
-            </Button>
-          </VStack>
         </VStack>
 
         {/* Enhanced Example Repositories */}
@@ -906,7 +880,7 @@ function App() {
                   <Button
                     size="lg"
                     colorScheme="blue"
-                    onClick={analyzeRepo}
+                    onClick={() => analyzeRepo()}
                     isLoading={isAnalyzing}
                     loadingText="Analyzing Repository..."
                     leftIcon={<FiSearch />}
@@ -1042,14 +1016,12 @@ function App() {
                               <StatNumber color={accentColor} fontSize="2xl">{stats.total_files}</StatNumber>
                               <StatLabel color={mutedTextColor}>Total Files</StatLabel>
                             </Stat>
-                            <Stat>
-                              <StatNumber color={successColor} fontSize="2xl">{stats.python_files}</StatNumber>
-                              <StatLabel color={mutedTextColor}>Python Files</StatLabel>
-                            </Stat>
-                            <Stat>
-                              <StatNumber color={warningColor} fontSize="2xl">{stats.js_files}</StatNumber>
-                              <StatLabel color={mutedTextColor}>JS/TS Files</StatLabel>
-                            </Stat>
+                            {stats.languages && Object.entries(stats.languages).map(([lang, count]) => (
+                              <Stat key={lang}>
+                                <StatNumber color={successColor} fontSize="2xl">{count}</StatNumber>
+                                <StatLabel color={mutedTextColor}>{lang} Files</StatLabel>
+                              </Stat>
+                            ))}
                             <Stat>
                               <StatNumber color={errorColor} fontSize="2xl">{stats.total_functions}</StatNumber>
                               <StatLabel color={mutedTextColor}>Functions</StatLabel>
@@ -1059,10 +1031,12 @@ function App() {
                         
                         <Box 
                           p={6} 
-                          bg="gray.700" 
+                          bg="rgba(44, 48, 66, 0.98)" 
                           borderRadius="xl"
-                          border="1px"
-                          borderColor={borderColor}
+                          border="1.5px solid"
+                          borderColor="rgba(255,255,255,0.15)"
+                          color="whiteAlpha.900"
+                          boxShadow="0 4px 24px rgba(0,0,0,0.25)"
                         >
                           <ReactMarkdown>{summary}</ReactMarkdown>
                         </Box>
@@ -1078,12 +1052,14 @@ function App() {
                         </HStack>
                         <Box
                           p={6}
-                          bg="gray.700"
+                          bg="rgba(44, 48, 66, 0.98)"
                           borderRadius="xl"
+                          border="1.5px solid"
+                          borderColor="rgba(255,255,255,0.15)"
+                          color="whiteAlpha.900"
+                          boxShadow="0 4px 24px rgba(0,0,0,0.25)"
                           maxH="600px"
                           overflowY="auto"
-                          border="1px"
-                          borderColor={borderColor}
                         >
                           <ReactMarkdown>{readme}</ReactMarkdown>
                         </Box>
@@ -1111,161 +1087,112 @@ function App() {
                       </VStack>
                     </TabPanel>
 
-                    {/* Enhanced Q&A Tab */}
+                    {/* Enhanced Q&A Tab as Chat */}
                     <TabPanel>
-                      <VStack spacing={6}>
-                        <HStack spacing={3}>
-                          <Box 
-                            p={2} 
-                            bg={`${successColor}20`} 
-                            borderRadius="full"
-                            color={successColor}
-                          >
-                            <Icon as={FiMessageSquare} w={5} h={5} />
-                          </Box>
-                          <VStack align="start" spacing={0}>
-                            <Heading size="md" color={textColor}>Ask Questions</Heading>
-                            <Text fontSize="sm" color={mutedTextColor}>Get intelligent answers about the codebase</Text>
-                          </VStack>
-                        </HStack>
-                        <VStack spacing={4} w="full">
-                          <Box position="relative" w="full">
-                            <Textarea
-                              size="lg"
-                              placeholder="Ask a question about the repository (e.g., 'How does the authentication work?' or 'What are the main components?')"
-                              value={question}
-                              onChange={(e) => setQuestion(e.target.value)}
-                              rows={4}
-                              borderColor={borderColor}
-                              borderRadius="xl"
-                              bg="gray.700"
-                              _hover={{
-                                bg: 'gray.600',
-                                borderColor: successColor
-                              }}
-                              _focus={{ 
-                                borderColor: successColor, 
-                                boxShadow: `0 0 0 1px ${successColor}`,
-                                transform: 'scale(1.01)',
-                                bg: 'gray.600'
-                              }}
-                              transition="all 0.2s"
-                              pr={12}
-                            />
-                            {question && (
-                              <IconButton
-                                aria-label="Clear question"
-                                icon={<FiX />}
-                                size="sm"
-                                variant="ghost"
-                                position="absolute"
-                                right={2}
-                                top={2}
-                                onClick={() => setQuestion('')}
-                                color={mutedTextColor}
-                                _hover={{ color: errorColor }}
-                              />
-                            )}
-                          </Box>
+                      <VStack spacing={6} align="stretch" h="500px">
+                        <Box bg="rgba(44, 48, 66, 0.98)" borderRadius="xl" p={4} flex="1" overflowY="auto" ref={chatBoxRef}>
+                          {chatHistory.length === 0 && (
+                            <Text color={mutedTextColor} textAlign="center" mt={8}>Ask a question about the codebase to start the chat!</Text>
+                          )}
+                          {chatHistory.map((msg, idx) => (
+                            <HStack key={idx} width="100%" mb={2}>
+                              {msg.role === 'user' ? (
+                                <Box
+                                  bg="blue.600"
+                                  color="whiteAlpha.900"
+                                  px={4}
+                                  py={2}
+                                  borderRadius="lg"
+                                  maxWidth="70%"
+                                  boxShadow="md"
+                                  ml="auto"
+                                >
+                                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+                                    code(props) {
+                                      const { className, children, ...rest } = props;
+                                      const isBlock = className && className.startsWith('language-');
+                                      if (isBlock) {
+                                        return (
+                                          <pre style={{background: '#232946', color: '#fff', borderRadius: '8px', padding: '12px', margin: '8px 0', overflowX: 'auto'}}>
+                                            <code className={className} {...rest}>{children}</code>
+                                          </pre>
+                                        );
+                                      }
+                                      return (
+                                        <code style={{background: '#232946', color: '#fff', borderRadius: '4px', padding: '2px 6px'}} {...rest}>{children}</code>
+                                      );
+                                    }
+                                  }}>
+                                    {msg.message}
+                                  </ReactMarkdown>
+                                </Box>
+                              ) : (
+                                <Box
+                                  maxWidth="70%"
+                                  color="whiteAlpha.900"
+                                  fontSize="md"
+                                  lineHeight="1.7"
+                                  mr="auto"
+                                >
+                                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+                                    code(props) {
+                                      const { className, children, ...rest } = props;
+                                      const isBlock = className && className.startsWith('language-');
+                                      if (isBlock) {
+                                        return (
+                                          <pre style={{background: '#232946', color: '#fff', borderRadius: '8px', padding: '12px', margin: '8px 0', overflowX: 'auto'}}>
+                                            <code className={className} {...rest}>{children}</code>
+                                          </pre>
+                                        );
+                                      }
+                                      return (
+                                        <code style={{background: '#232946', color: '#fff', borderRadius: '4px', padding: '2px 6px'}} {...rest}>{children}</code>
+                                      );
+                                    }
+                                  }}>
+                                    {msg.message}
+                                  </ReactMarkdown>
+                                </Box>
+                              )}
+                            </HStack>
+                          ))}
+                        </Box>
+                        <HStack spacing={2} align="flex-end">
+                          <Textarea
+                            size="lg"
+                            placeholder="Ask a question about the repository..."
+                            value={question}
+                            onChange={(e) => setQuestion(e.target.value)}
+                            rows={2}
+                            borderColor={borderColor}
+                            borderRadius="xl"
+                            bg="gray.700"
+                            color={textColor}
+                            _hover={{ bg: 'gray.600', borderColor: successColor }}
+                            _focus={{ borderColor: successColor, boxShadow: `0 0 0 1px ${successColor}`, bg: 'gray.600' }}
+                            transition="all 0.2s"
+                            pr={12}
+                            isDisabled={isAsking}
+                          />
                           <Button
                             size="lg"
                             colorScheme="green"
-                            onClick={askQuestion}
+                            onClick={handleSendQuestion}
                             isLoading={isAsking}
                             loadingText="Generating Answer..."
                             leftIcon={<FiMessageSquare />}
-                            w="full"
-                            h={14}
                             borderRadius="xl"
+                            px={6}
+                            h={14}
                             bgGradient="linear(to-r, green.500, green.600)"
-                            _hover={{ 
-                              transform: 'translateY(-2px)', 
-                              boxShadow: '0 10px 25px -5px rgba(34, 197, 94, 0.4)',
-                              bgGradient: 'linear(to-r, green.600, green.700)'
-                            }}
-                            _active={{
-                              transform: 'translateY(0)',
-                              bgGradient: 'linear(to-r, green.700, green.800)'
-                            }}
+                            _hover={{ transform: 'translateY(-2px)', boxShadow: '0 10px 25px -5px rgba(34, 197, 94, 0.4)', bgGradient: 'linear(to-r, green.600, green.700)' }}
+                            _active={{ transform: 'translateY(0)', bgGradient: 'linear(to-r, green.700, green.800)' }}
                             transition="all 0.2s"
-                            isDisabled={!summary || !question.trim()}
+                            isDisabled={!question.trim() || isAsking}
                           >
-                            {isAsking ? 'Thinking...' : 'Ask Question'}
+                            {isAsking ? 'Thinking...' : 'Send'}
                           </Button>
-                        </VStack>
-                        {isAsking && (
-                          <VStack spacing={3} w="full">
-                            <Progress 
-                              size="sm" 
-                              isIndeterminate 
-                              colorScheme="green" 
-                              w="full" 
-                              borderRadius="full"
-                              bg="green.900"
-                            />
-                            <HStack spacing={2} color={mutedTextColor}>
-                              <Spinner size="sm" color={successColor} />
-                              <Text fontSize="sm">
-                                Analyzing code and generating intelligent answer...
-                              </Text>
-                            </HStack>
-                          </VStack>
-                        )}
-
-                        {/* Enhanced Answer Section */}
-                        {answer && (
-                          <VStack spacing={4} align="stretch" w="full">
-                            <HStack spacing={3}>
-                              <Box 
-                                p={2} 
-                                bg={`${warningColor}20`} 
-                                borderRadius="full"
-                                color={warningColor}
-                              >
-                                <Icon as={FiZap} w={5} h={5} />
-                              </Box>
-                              <VStack align="start" spacing={0}>
-                                <Heading size="md" color={textColor}>Answer</Heading>
-                                <Text fontSize="sm" color={mutedTextColor}>AI-generated response</Text>
-                              </VStack>
-                            </HStack>
-                            
-                            {contextFiles.length > 0 && (
-                              <Box 
-                                p={3} 
-                                bg="blue.900" 
-                                borderRadius="lg"
-                                border="1px"
-                                borderColor="blue.700"
-                              >
-                                <Text fontSize="sm" fontWeight="semibold" mb={1} color="blue.300">
-                                  <Icon as={FiFile} mr={2} />
-                                  Based on files:
-                                </Text>
-                                <Text fontSize="sm" color="blue.400">
-                                  {contextFiles.slice(0, 3).join(', ')}
-                                  {contextFiles.length > 3 && ` and ${contextFiles.length - 3} more`}
-                                </Text>
-                              </Box>
-                            )}
-                            
-                            <Box 
-                              p={6} 
-                              bg="gray.700" 
-                              borderRadius="xl"
-                              border="1px"
-                              borderColor={borderColor}
-                              _hover={{
-                                borderColor: successColor,
-                                transform: 'translateY(-1px)',
-                                shadow: 'md'
-                              }}
-                              transition="all 0.2s"
-                            >
-                              <ReactMarkdown>{answer}</ReactMarkdown>
-                            </Box>
-                          </VStack>
-                        )}
+                        </HStack>
                       </VStack>
                     </TabPanel>
                   </TabPanels>
@@ -1348,7 +1275,7 @@ function App() {
           <VStack spacing={8}>
             <Flex justify="space-between" align="center" direction={{ base: 'column', md: 'row' }} gap={4} w="full">
               <HStack spacing={3}>
-                <Avatar size="sm" bg={accentColor} icon={<FiGithub />} name="Squirrel AI" />
+                <img src="/logo.jpeg" alt="Squirrel AI Logo" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', boxShadow: '0 2px 8px rgba(59, 130, 246, 0.15)' }} />
                 <VStack align="start" spacing={0}>
                   <Text fontWeight="bold" color={textColor}>Squirrel AI</Text>
                   <Text fontSize="xs" color={mutedTextColor}>AI-Powered Code Analysis</Text>

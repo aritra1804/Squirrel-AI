@@ -33,6 +33,18 @@ Squirrel AI is a playful, AI-powered developer hub that lets you play with any G
 - **RESTful API**: Clean, documented endpoints with automatic OpenAPI docs
 - **Error Handling**: Robust error management and user-friendly messages
 
+## 🎥 Demo
+
+> **Watch Squirrel AI in action:**
+
+<video src="frontend/public/demo.mp4" controls style="max-width: 100%; border-radius: 1rem; margin-bottom: 1rem;" poster="./s1.png"></video>
+
+### Screenshots
+
+| Home / Analyze | Code Structure | Q&A Chat | Example Modal |
+|:-------------:|:--------------:|:--------:|:-------------:|
+| ![Home](./s1.png) | ![Code Structure](./s2.png) | ![Q&A](./s3.png) | ![Examples](./s4.png) |
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -113,131 +125,6 @@ npm run dev
 - "Explain the API structure and endpoints"
 - "What testing framework is used?"
 
-## 🏗️ Architecture
-
-### Frontend (React + TypeScript)
-```
-frontend/
-├── src/
-│   ├── App.tsx          # Main application component
-│   ├── main.tsx         # Application entry point
-│   └── assets/          # Static assets
-├── package.json         # Dependencies and scripts
-└── vite.config.ts       # Vite configuration
-```
-
-### Backend (FastAPI + Python)
-```
-backend/
-├── main.py              # FastAPI application
-├── requirements.txt     # Python dependencies
-└── cached_repos/        # Repository cache directory
-```
-
-### Key Technologies
-- **Frontend**: React 18, TypeScript, Chakra UI, Vite
-- **Backend**: FastAPI, OpenAI API, ChromaDB, Sentence Transformers
-- **AI/ML**: GPT-3.5-turbo, all-MiniLM-L6-v2 embeddings
-- **Caching**: ChromaDB for vector storage, file system for repos
-
-## 🔧 Configuration
-
-### Environment Variables
-Create a `.env` file in the root directory:
-
-```env
-# Required
-OPENAI_API_KEY=your-openai-api-key-here
-
-# Optional
-OPENAI_MODEL=gpt-3.5-turbo  # or gpt-4
-```
-
-### Backend Settings
-Modify `backend/main.py` to adjust:
-
-```python
-# AI Settings
-OPENAI_MODEL = "gpt-3.5-turbo"  # or "gpt-4"
-EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
-
-# Processing Settings
-CHUNK_SIZE = 1000        # Code chunk size
-CHUNK_OVERLAP = 100      # Overlap between chunks
-TOP_K = 6               # Number of relevant chunks for Q&A
-```
-
-### Frontend Settings
-Modify `frontend/src/App.tsx` to change:
-
-```typescript
-const API_URL = 'http://localhost:8000'  // Backend URL
-```
-
-## 📊 API Endpoints
-
-### `POST /analyze`
-Analyze a GitHub repository and return comprehensive information.
-
-**Request:**
-```json
-{
-  "url": "https://github.com/username/repository"
-}
-```
-
-**Response:**
-```json
-{
-  "summary": "AI-generated project summary...",
-  "readme": "README content...",
-  "code_structure": {
-    "file.py": {
-      "functions": [...],
-      "classes": [...],
-      "imports": [...]
-    }
-  },
-  "stats": {
-    "total_files": 50,
-    "python_files": 30,
-    "js_files": 15,
-    "total_functions": 120,
-    "total_classes": 25
-  }
-}
-```
-
-### `POST /ask`
-Ask a question about a repository and get an AI-powered answer.
-
-**Request:**
-```json
-{
-  "question": "How does authentication work?",
-  "repo_url": "https://github.com/username/repository"
-}
-```
-
-**Response:**
-```json
-{
-  "answer": "AI-generated answer...",
-  "context_files": ["auth.py", "middleware.py", "config.py"]
-}
-```
-
-### `GET /health`
-Health check endpoint.
-
-**Response:**
-```json
-{
-  "status": "healthy",
-  "version": "2.0.0"
-}
-```
-
 ## 🛠️ Development
 
 ### Running in Development Mode
@@ -309,43 +196,6 @@ Error: Out of memory during analysis
 - Clear cached_repos directory
 - Use smaller repositories for testing
 
-### Performance Optimization
-- **Large Repositories**: Consider excluding certain directories in `clone_and_prepare()`
-- **Frequent Usage**: Implement Redis caching for embeddings
-- **Concurrent Users**: Use async processing and connection pooling
-
-## 🤝 Contributing
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit your changes**: `git commit -m 'Add amazing feature'`
-4. **Push to the branch**: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
-
-### Development Guidelines
-- Follow PEP 8 for Python code
-- Use TypeScript for frontend components
-- Add tests for new features
-- Update documentation for API changes
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **OpenAI** for providing the GPT models
-- **ChromaDB** for vector storage capabilities
-- **Sentence Transformers** for embeddings
-- **FastAPI** for the excellent web framework
-- **React** and **Chakra UI** for the beautiful frontend
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/squirrel-ai/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/squirrel-ai/discussions)
-- **Email**: your-email@example.com
-
 ---
 
-**Made with ❤️ for developers who love to explore code**
+
