@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import {
   Box,
   VStack,
@@ -20,7 +20,6 @@ import {
   Icon,
   Badge,
   Divider,
-  useColorModeValue,
   Progress,
   Spinner,
   SimpleGrid,
@@ -45,7 +44,6 @@ import {
   List,
   ListItem,
   ListIcon,
-  useColorMode,
   Avatar,
   Tag,
   TagLabel,
@@ -97,6 +95,7 @@ import {
   FiList,
   FiMaximize2,
   FiMinimize2,
+  FiX,
 } from 'react-icons/fi'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -160,22 +159,23 @@ function App() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [contextFiles, setContextFiles] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState(0)
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const toast = useToast()
-  const { colorMode, toggleColorMode } = useColorMode()
 
-  // Enhanced color scheme for dark mode
-  const bgGradient = useColorModeValue(
-    'linear(to-br, gray.50, blue.50, purple.50)',
-    'linear(to-br, gray.900, blue.900, purple.900)'
-  )
-  const cardBg = useColorModeValue('white', 'gray.800')
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const textColor = useColorModeValue('gray.800', 'gray.100')
-  const mutedTextColor = useColorModeValue('gray.600', 'gray.400')
-  const accentColor = useColorModeValue('blue.500', 'blue.300')
-  const successColor = useColorModeValue('green.500', 'green.300')
-  const warningColor = useColorModeValue('orange.500', 'orange.300')
-  const errorColor = useColorModeValue('red.500', 'red.300')
+  // Dark mode color scheme
+  const cardBg = 'gray.800'
+  const borderColor = 'gray.700'
+  const textColor = 'gray.100'
+  const mutedTextColor = 'gray.400'
+  const accentColor = 'blue.300'
+  const successColor = 'green.300'
+  const warningColor = 'orange.300'
+  const errorColor = 'red.300'
+  const codeBg = 'gray.700'
+  const headerBg = 'gray.800'
+  const headerBorder = 'gray.700'
+  const headerShadow = 'lg'
 
   const validateGitHubUrl = (url: string) => {
     if (!url) return false
@@ -302,54 +302,56 @@ function App() {
     setIsAsking(false)
   }
 
-  const features = [
-    {
-      icon: FiSearch,
-      title: 'Smart Analysis',
-      description: 'AI-powered repository analysis that understands your codebase structure and purpose.',
-      color: 'blue'
-    },
-    {
-      icon: FiMessageSquare,
-      title: 'Interactive Q&A',
-      description: 'Ask questions about any part of the codebase and get intelligent, contextual answers.',
-      color: 'green'
-    },
-    {
-      icon: FiZap,
-      title: 'Lightning Fast',
-      description: 'Powered by OpenAI and advanced embeddings for quick, accurate responses.',
-      color: 'purple'
-    },
-    {
-      icon: FiCode,
-      title: 'Multi-Language',
-      description: 'Supports Python, JavaScript, TypeScript, Java, Go, C++, C, and Ruby repositories.',
-      color: 'orange'
-    }
-  ]
-
+  // Example repositories
   const exampleRepos = [
     {
       name: 'React',
+      description: 'The library for web and native user interfaces',
       url: 'https://github.com/facebook/react',
-      description: 'Popular JavaScript library for building user interfaces',
-      stars: '200k+',
-      language: 'TypeScript'
+      stars: '210k+',
+      language: 'JavaScript'
     },
     {
       name: 'Vue.js',
+      description: 'The Progressive JavaScript Framework',
       url: 'https://github.com/vuejs/vue',
-      description: 'Progressive JavaScript framework for building UIs',
-      stars: '200k+',
+      stars: '205k+',
       language: 'JavaScript'
     },
     {
       name: 'FastAPI',
+      description: 'Modern, fast web framework for building APIs',
       url: 'https://github.com/tiangolo/fastapi',
-      description: 'Modern Python web framework for building APIs',
       stars: '70k+',
       language: 'Python'
+    }
+  ]
+
+  // Features array
+  const features = [
+    {
+      title: 'Smart Analysis',
+      description: 'AI-powered code analysis that understands your codebase structure and patterns.',
+      icon: FiCpu,
+      color: 'blue'
+    },
+    {
+      title: 'Instant Q&A',
+      description: 'Ask questions about any part of the code and get intelligent, context-aware answers.',
+      icon: FiMessageSquare,
+      color: 'green'
+    },
+    {
+      title: 'Multi-Language',
+      description: 'Support for Python, JavaScript, TypeScript, Java, Go, C++, and many more languages.',
+      icon: FiCode,
+      color: 'purple'
+    },
+    {
+      title: 'Fast & Free',
+      description: 'Lightning-fast analysis with intelligent caching. Completely free to use.',
+      icon: FiZap,
+      color: 'orange'
     }
   ]
 
@@ -372,8 +374,8 @@ function App() {
         {files.slice(0, 20).map(([filePath, structure]) => (
           <AccordionItem key={filePath} border="none" mb={2}>
             <AccordionButton
-              bg={useColorModeValue('gray.50', 'gray.700')}
-              _hover={{ bg: useColorModeValue('gray.100', 'gray.600') }}
+              bg="gray.700"
+              _hover={{ bg: 'gray.600' }}
               borderRadius="lg"
               p={4}
             >
@@ -405,7 +407,7 @@ function App() {
                         <ListItem key={idx}>
                           <HStack>
                             <ListIcon as={FiHash} color={successColor} />
-                            <Code fontSize="sm" bg={useColorModeValue('gray.100', 'gray.700')} color={textColor}>
+                            <Code fontSize="sm" bg="gray.700" color={textColor}>
                               {func.name}({func.args.join(', ')})
                             </Code>
                             <Text fontSize="xs" color={mutedTextColor}>line {func.line}</Text>
@@ -424,7 +426,7 @@ function App() {
                         <ListItem key={idx}>
                           <HStack>
                             <ListIcon as={FiTag} color={warningColor} />
-                            <Code fontSize="sm" bg={useColorModeValue('gray.100', 'gray.700')} color={textColor}>
+                            <Code fontSize="sm" bg="gray.700" color={textColor}>
                               {cls.name}
                             </Code>
                             <Text fontSize="xs" color={mutedTextColor}>line {cls.line}</Text>
@@ -448,19 +450,60 @@ function App() {
   }
 
   return (
-    <Box minH="100vh" bgGradient={bgGradient} color={textColor}>
+    <Box minH="100vh" color={textColor} position="relative" overflow="hidden">
+      {/* Floating Background Elements */}
+      <Box
+        position="fixed"
+        top="10%"
+        left="5%"
+        w="200px"
+        h="200px"
+        borderRadius="full"
+        bg="blue.900"
+        opacity={0.1}
+        animation="float 6s ease-in-out infinite"
+        zIndex={0}
+        filter="blur(40px)"
+      />
+      <Box
+        position="fixed"
+        top="60%"
+        right="10%"
+        w="300px"
+        h="300px"
+        borderRadius="full"
+        bg="purple.900"
+        opacity={0.1}
+        animation="float 8s ease-in-out infinite reverse"
+        zIndex={0}
+        filter="blur(50px)"
+      />
+      <Box
+        position="fixed"
+        bottom="20%"
+        left="20%"
+        w="150px"
+        h="150px"
+        borderRadius="full"
+        bg="green.900"
+        opacity={0.1}
+        animation="float 7s ease-in-out infinite"
+        zIndex={0}
+        filter="blur(30px)"
+      />
+
       {/* Enhanced Header */}
       <Box 
         as="header" 
         py={6} 
         borderBottom="1px" 
-        borderColor={borderColor} 
-        bg={useColorModeValue('white', 'gray.800')}
-        backdropFilter="blur(10px)"
+        borderColor={headerBorder} 
+        bg={headerBg}
+        backdropFilter="blur(20px)"
         position="sticky"
         top={0}
         zIndex={10}
-        boxShadow={useColorModeValue('sm', 'lg')}
+        boxShadow={headerShadow}
       >
         <Container maxW="container.xl">
           <Flex justify="space-between" align="center">
@@ -470,6 +513,7 @@ function App() {
                 bg={accentColor} 
                 icon={<FiGithub />} 
                 name="GitGenie"
+                boxShadow="0 4px 12px rgba(59, 130, 246, 0.3)"
               />
               <VStack align="start" spacing={0}>
                 <Heading size="lg" bgGradient="linear(to-r, blue.500, purple.500)" bgClip="text">
@@ -487,24 +531,24 @@ function App() {
                 <TagLeftIcon as={FiGlobe} />
                 <TagLabel>OpenAI</TagLabel>
               </Tag>
-              <IconButton
-                aria-label="Toggle color mode"
-                icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
-                onClick={toggleColorMode}
-                variant="ghost"
-                size="sm"
-              />
             </HStack>
           </Flex>
         </Container>
       </Box>
 
-      <Container maxW="container.xl" py={12}>
+      <Container maxW="container.xl" py={12} position="relative" zIndex={1}>
         {/* Enhanced Hero Section */}
         <VStack spacing={12} textAlign="center" mb={16}>
           <VStack spacing={6} maxW="4xl">
             <VStack spacing={4}>
-              <Badge colorScheme="purple" variant="subtle" px={3} py={1} borderRadius="full">
+              <Badge 
+                colorScheme="purple" 
+                variant="subtle" 
+                px={3} 
+                py={1} 
+                borderRadius="full"
+                animation="float 3s ease-in-out infinite"
+              >
                 <HStack spacing={2}>
                   <Icon as={FiTrendingUp} />
                   <Text>Latest Version 2.0</Text>
@@ -516,6 +560,7 @@ function App() {
                 bgClip="text"
                 lineHeight="1.2"
                 fontWeight="extrabold"
+                textShadow="0 2px 4px rgba(0,0,0,0.3)"
               >
                 Understand Any GitHub Repository
                 <br />
@@ -524,7 +569,13 @@ function App() {
                 </Text>
               </Heading>
             </VStack>
-            <Text fontSize="xl" color={mutedTextColor} maxW="2xl" lineHeight="1.6">
+            <Text 
+              fontSize="xl" 
+              color={mutedTextColor} 
+              maxW="2xl" 
+              lineHeight="1.6"
+              textShadow="0 1px 2px rgba(0,0,0,0.2)"
+            >
               GitGenie uses advanced AI to analyze your codebase, answer questions, and provide insights 
               that help you understand complex repositories instantly.
             </Text>
@@ -536,7 +587,16 @@ function App() {
                 onClick={() => document.getElementById('repo-input')?.focus()}
                 borderRadius="full"
                 px={8}
-                _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
+                bgGradient="linear(to-r, blue.500, blue.600)"
+                _hover={{ 
+                  transform: 'translateY(-2px)', 
+                  boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
+                  bgGradient: 'linear(to-r, blue.600, blue.700)'
+                }}
+                _active={{
+                  transform: 'translateY(0)',
+                  bgGradient: 'linear(to-r, blue.700, blue.800)'
+                }}
                 transition="all 0.2s"
               >
                 Try It Now
@@ -547,7 +607,13 @@ function App() {
                 leftIcon={<FiBookOpen />}
                 borderRadius="full"
                 px={8}
-                _hover={{ transform: 'translateY(-2px)' }}
+                borderColor={accentColor}
+                color={accentColor}
+                _hover={{ 
+                  transform: 'translateY(-2px)',
+                  bg: "blue.900",
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)'
+                }}
                 transition="all 0.2s"
               >
                 View Examples
@@ -558,28 +624,158 @@ function App() {
           {/* Enhanced Stats */}
           <SimpleGrid columns={{ base: 1, md: 4 }} spacing={8} w="full" maxW="3xl">
             <Stat textAlign="center">
-              <StatNumber color={accentColor} fontSize="3xl" fontWeight="bold">10+</StatNumber>
+              <StatNumber 
+                color={accentColor} 
+                fontSize="3xl" 
+                fontWeight="bold"
+                textShadow="0 2px 4px rgba(59, 130, 246, 0.4)"
+              >
+                10+
+              </StatNumber>
               <StatLabel color={mutedTextColor}>Languages Supported</StatLabel>
             </Stat>
             <Stat textAlign="center">
-              <StatNumber color={successColor} fontSize="3xl" fontWeight="bold">Instant</StatNumber>
+              <StatNumber 
+                color={successColor} 
+                fontSize="3xl" 
+                fontWeight="bold"
+                textShadow="0 2px 4px rgba(34, 197, 94, 0.4)"
+              >
+                Instant
+              </StatNumber>
               <StatLabel color={mutedTextColor}>Analysis Speed</StatLabel>
             </Stat>
             <Stat textAlign="center">
-              <StatNumber color={warningColor} fontSize="3xl" fontWeight="bold">100%</StatNumber>
+              <StatNumber 
+                color={warningColor} 
+                fontSize="3xl" 
+                fontWeight="bold"
+                textShadow="0 2px 4px rgba(251, 146, 60, 0.4)"
+              >
+                100%
+              </StatNumber>
               <StatLabel color={mutedTextColor}>Free to Use</StatLabel>
             </Stat>
             <Stat textAlign="center">
-              <StatNumber color={errorColor} fontSize="3xl" fontWeight="bold">AI</StatNumber>
+              <StatNumber 
+                color={errorColor} 
+                fontSize="3xl" 
+                fontWeight="bold"
+                textShadow="0 2px 4px rgba(239, 68, 68, 0.4)"
+              >
+                AI
+              </StatNumber>
               <StatLabel color={mutedTextColor}>Powered</StatLabel>
             </Stat>
           </SimpleGrid>
         </VStack>
 
+        {/* Demo Video Section */}
+        <VStack spacing={8} mb={16}>
+          <VStack spacing={4} textAlign="center">
+            <Badge 
+              colorScheme="green" 
+              variant="subtle" 
+              px={3} 
+              py={1} 
+              borderRadius="full"
+            >
+              <HStack spacing={2}>
+                <Icon as={FiPlay} />
+                <Text>See It In Action</Text>
+              </HStack>
+            </Badge>
+            <Heading size="xl" bgGradient="linear(to-r, green.400, blue.400)" bgClip="text">
+              Watch GitGenie Work
+            </Heading>
+            <Text fontSize="lg" color={mutedTextColor} maxW="2xl">
+              See how GitGenie analyzes repositories and answers questions in real-time
+            </Text>
+          </VStack>
+          
+          <Card 
+            bg={cardBg} 
+            border="1px" 
+            borderColor={borderColor} 
+            borderRadius="2xl" 
+            shadow="xl"
+            overflow="hidden"
+            backdropFilter="blur(20px)"
+            maxW="4xl"
+            w="full"
+            _hover={{ 
+              transform: 'translateY(-4px)', 
+              shadow: '2xl',
+              borderColor: 'green.400'
+            }}
+            transition="all 0.3s"
+          >
+            <CardBody p={0} position="relative">
+              <video
+                ref={videoRef}
+                src="/test.mp4"
+                controls
+                style={{ width: '100%', height: 'auto', borderRadius: '1rem', display: 'block', background: 'black' }}
+                onPlay={() => setIsVideoPlaying(true)}
+                onPause={() => setIsVideoPlaying(false)}
+                onEnded={() => setIsVideoPlaying(false)}
+              />
+              {/* Video Overlay with Play Icon - Only show when not playing */}
+              {!isVideoPlaying && (
+                <Box
+                  position="absolute"
+                  top="50%"
+                  left="50%"
+                  transform="translate(-50%, -50%)"
+                  pointerEvents="none"
+                  opacity={0.85}
+                  zIndex={1}
+                >
+                  <Box
+                    bg="rgba(0, 0, 0, 0.0)"
+                    borderRadius="full"
+                    p={4}
+                  >
+                    <Icon as={FiPlay} w={16} h={16} color="white" />
+                  </Box>
+                </Box>
+              )}
+            </CardBody>
+          </Card>
+          
+          {/* Call to Action */}
+          <VStack spacing={4} pt={4}>
+            <Text fontSize="lg" color={mutedTextColor} textAlign="center">
+              Ready to analyze your own repositories?
+            </Text>
+            <Button
+              size="lg"
+              colorScheme="green"
+              leftIcon={<FiGithub />}
+              onClick={() => document.getElementById('repo-input')?.focus()}
+              borderRadius="full"
+              px={8}
+              bgGradient="linear(to-r, green.500, green.600)"
+              _hover={{ 
+                transform: 'translateY(-2px)', 
+                boxShadow: '0 10px 25px -5px rgba(34, 197, 94, 0.4)',
+                bgGradient: 'linear(to-r, green.600, green.700)'
+              }}
+              _active={{
+                transform: 'translateY(0)',
+                bgGradient: 'linear(to-r, green.700, green.800)'
+              }}
+              transition="all 0.2s"
+            >
+              Try GitGenie Now
+            </Button>
+          </VStack>
+        </VStack>
+
         {/* Enhanced Example Repositories */}
         <VStack spacing={6} mb={12}>
           <VStack spacing={2}>
-            <Text fontSize="lg" color={mutedTextColor}>Try with popular repositories:</Text>
+            <Text fontSize="lg" color={mutedTextColor} fontWeight="medium">Try with popular repositories:</Text>
             <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} w="full">
               {exampleRepos.map((repo, index) => (
                 <Card 
@@ -590,10 +786,12 @@ function App() {
                   borderRadius="xl" 
                   shadow="md"
                   cursor="pointer"
+                  backdropFilter="blur(15px)"
                   _hover={{ 
                     transform: 'translateY(-4px)', 
                     shadow: 'xl',
-                    borderColor: accentColor 
+                    borderColor: accentColor,
+                    bg: 'gray.700'
                   }}
                   transition="all 0.3s"
                   onClick={() => setExampleRepo(repo.url)}
@@ -609,7 +807,7 @@ function App() {
                           {repo.language}
                         </Badge>
                       </HStack>
-                      <Text fontSize="sm" color={mutedTextColor} noOfLines={2}>
+                      <Text fontSize="sm" color={mutedTextColor} noOfLines={2} lineHeight="1.5">
                         {repo.description}
                       </Text>
                       <HStack justify="space-between">
@@ -628,17 +826,7 @@ function App() {
 
         {/* Enhanced Main Interface */}
         <VStack spacing={8} align="stretch">
-          {error && (
-            <Alert status="error" borderRadius="xl" variant="left-accent">
-              <AlertIcon />
-              <Box>
-                <AlertTitle>Error!</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Box>
-            </Alert>
-          )}
-
-          {/* Enhanced Repository Input */}
+          {/* Enhanced Input Section */}
           <Card 
             bg={cardBg} 
             border="1px" 
@@ -646,29 +834,71 @@ function App() {
             borderRadius="2xl" 
             shadow="xl"
             overflow="hidden"
+            backdropFilter="blur(20px)"
+            _hover={{ 
+              transform: 'translateY(-2px)', 
+              shadow: '2xl',
+              borderColor: accentColor,
+              backdropFilter: 'blur(30px)'
+            }}
+            transition="all 0.3s"
           >
             <CardBody p={8}>
               <VStack spacing={6}>
                 <HStack spacing={3}>
-                  <Icon as={FiGithub} w={6} h={6} color={accentColor} />
-                  <Heading size="md" color={textColor}>Repository Analysis</Heading>
+                  <Box 
+                    p={2} 
+                    bg={`${accentColor}20`} 
+                    borderRadius="full"
+                    color={accentColor}
+                  >
+                    <Icon as={FiGithub} w={5} h={5} />
+                  </Box>
+                  <VStack align="start" spacing={0}>
+                    <Heading size="md" color={textColor}>Repository Analysis</Heading>
+                    <Text fontSize="sm" color={mutedTextColor}>Enter a GitHub URL to get started</Text>
+                  </VStack>
                 </HStack>
                 <VStack spacing={4} w="full">
-                  <Input
-                    id="repo-input"
-                    size="lg"
-                    placeholder="Enter GitHub repository URL (e.g., https://github.com/facebook/react)"
-                    value={repoUrl}
-                    onChange={(e) => setRepoUrl(e.target.value)}
-                    borderColor={borderColor}
-                    borderRadius="xl"
-                    _focus={{ 
-                      borderColor: accentColor, 
-                      boxShadow: `0 0 0 1px ${accentColor}`,
-                      transform: 'scale(1.02)'
-                    }}
-                    transition="all 0.2s"
-                  />
+                  <Box position="relative" w="full">
+                    <Input
+                      id="repo-input"
+                      size="lg"
+                      placeholder="https://github.com/username/repository"
+                      value={repoUrl}
+                      onChange={(e) => setRepoUrl(e.target.value)}
+                      borderColor={borderColor}
+                      borderRadius="xl"
+                      bg="gray.700"
+                      _hover={{
+                        bg: 'gray.600',
+                        borderColor: accentColor
+                      }}
+                      _focus={{ 
+                        borderColor: accentColor, 
+                        boxShadow: `0 0 0 1px ${accentColor}`,
+                        transform: 'scale(1.01)',
+                        bg: 'gray.600'
+                      }}
+                      transition="all 0.2s"
+                      pr={12}
+                    />
+                    {repoUrl && (
+                      <IconButton
+                        aria-label="Clear input"
+                        icon={<FiX />}
+                        size="sm"
+                        variant="ghost"
+                        position="absolute"
+                        right={2}
+                        top="50%"
+                        transform="translateY(-50%)"
+                        onClick={() => setRepoUrl('')}
+                        color={mutedTextColor}
+                        _hover={{ color: errorColor }}
+                      />
+                    )}
+                  </Box>
                   <Button
                     size="lg"
                     colorScheme="blue"
@@ -679,8 +909,18 @@ function App() {
                     w="full"
                     h={14}
                     borderRadius="xl"
-                    _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
+                    bgGradient="linear(to-r, blue.500, blue.600)"
+                    _hover={{ 
+                      transform: 'translateY(-2px)', 
+                      boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
+                      bgGradient: 'linear(to-r, blue.600, blue.700)'
+                    }}
+                    _active={{
+                      transform: 'translateY(0)',
+                      bgGradient: 'linear(to-r, blue.700, blue.800)'
+                    }}
                     transition="all 0.2s"
+                    isDisabled={!repoUrl.trim()}
                   >
                     {isAnalyzing ? 'Analyzing...' : 'Analyze Repository'}
                   </Button>
@@ -693,12 +933,24 @@ function App() {
                       colorScheme="blue" 
                       w="full" 
                       borderRadius="full"
+                      bg="blue.900"
                     />
-                    <Text fontSize="sm" color={mutedTextColor}>
-                      <Icon as={FiActivity} mr={2} />
-                      Analyzing code...
-                    </Text>
+                    <HStack spacing={2} color={mutedTextColor}>
+                      <Spinner size="sm" color={accentColor} />
+                      <Text fontSize="sm">
+                        Analyzing code structure and generating insights...
+                      </Text>
+                    </HStack>
                   </VStack>
+                )}
+                {error && (
+                  <Alert status="error" borderRadius="xl" variant="subtle">
+                    <AlertIcon />
+                    <Box>
+                      <AlertTitle>Analysis Failed</AlertTitle>
+                      <AlertDescription>{error}</AlertDescription>
+                    </Box>
+                  </Alert>
                 )}
               </VStack>
             </CardBody>
@@ -713,10 +965,18 @@ function App() {
               borderRadius="2xl" 
               shadow="xl"
               overflow="hidden"
+              backdropFilter="blur(20px)"
+              _hover={{ 
+                transform: 'translateY(-2px)', 
+                shadow: '2xl',
+                borderColor: accentColor,
+                backdropFilter: 'blur(30px)'
+              }}
+              transition="all 0.3s"
             >
               <CardBody p={0}>
                 <Tabs index={activeTab} onChange={setActiveTab} variant="enclosed" colorScheme="blue">
-                  <TabList bg={useColorModeValue('gray.50', 'gray.700')} px={6} pt={6}>
+                  <TabList bg="gray.700" px={6} pt={6}>
                     <Tab 
                       borderRadius="lg" 
                       mr={2}
@@ -795,7 +1055,7 @@ function App() {
                         
                         <Box 
                           p={6} 
-                          bg={useColorModeValue('gray.50', 'gray.700')} 
+                          bg="gray.700" 
                           borderRadius="xl"
                           border="1px"
                           borderColor={borderColor}
@@ -814,7 +1074,7 @@ function App() {
                         </HStack>
                         <Box
                           p={6}
-                          bg={useColorModeValue('gray.50', 'gray.700')}
+                          bg="gray.700"
                           borderRadius="xl"
                           maxH="600px"
                           overflowY="auto"
@@ -835,7 +1095,7 @@ function App() {
                         </HStack>
                         <Box
                           p={6}
-                          bg={useColorModeValue('gray.50', 'gray.700')}
+                          bg="gray.700"
                           borderRadius="xl"
                           maxH="600px"
                           overflowY="auto"
@@ -851,25 +1111,58 @@ function App() {
                     <TabPanel>
                       <VStack spacing={6}>
                         <HStack spacing={3}>
-                          <Icon as={FiMessageSquare} w={6} h={6} color={successColor} />
-                          <Heading size="md" color={textColor}>Ask Questions</Heading>
+                          <Box 
+                            p={2} 
+                            bg={`${successColor}20`} 
+                            borderRadius="full"
+                            color={successColor}
+                          >
+                            <Icon as={FiMessageSquare} w={5} h={5} />
+                          </Box>
+                          <VStack align="start" spacing={0}>
+                            <Heading size="md" color={textColor}>Ask Questions</Heading>
+                            <Text fontSize="sm" color={mutedTextColor}>Get intelligent answers about the codebase</Text>
+                          </VStack>
                         </HStack>
                         <VStack spacing={4} w="full">
-                          <Textarea
-                            size="lg"
-                            placeholder="Ask a question about the repository (e.g., 'How does the authentication work?' or 'What are the main components?')"
-                            value={question}
-                            onChange={(e) => setQuestion(e.target.value)}
-                            rows={4}
-                            borderColor={borderColor}
-                            borderRadius="xl"
-                            _focus={{ 
-                              borderColor: successColor, 
-                              boxShadow: `0 0 0 1px ${successColor}`,
-                              transform: 'scale(1.02)'
-                            }}
-                            transition="all 0.2s"
-                          />
+                          <Box position="relative" w="full">
+                            <Textarea
+                              size="lg"
+                              placeholder="Ask a question about the repository (e.g., 'How does the authentication work?' or 'What are the main components?')"
+                              value={question}
+                              onChange={(e) => setQuestion(e.target.value)}
+                              rows={4}
+                              borderColor={borderColor}
+                              borderRadius="xl"
+                              bg="gray.700"
+                              _hover={{
+                                bg: 'gray.600',
+                                borderColor: successColor
+                              }}
+                              _focus={{ 
+                                borderColor: successColor, 
+                                boxShadow: `0 0 0 1px ${successColor}`,
+                                transform: 'scale(1.01)',
+                                bg: 'gray.600'
+                              }}
+                              transition="all 0.2s"
+                              pr={12}
+                            />
+                            {question && (
+                              <IconButton
+                                aria-label="Clear question"
+                                icon={<FiX />}
+                                size="sm"
+                                variant="ghost"
+                                position="absolute"
+                                right={2}
+                                top={2}
+                                onClick={() => setQuestion('')}
+                                color={mutedTextColor}
+                                _hover={{ color: errorColor }}
+                              />
+                            )}
+                          </Box>
                           <Button
                             size="lg"
                             colorScheme="green"
@@ -880,9 +1173,18 @@ function App() {
                             w="full"
                             h={14}
                             borderRadius="xl"
-                            isDisabled={!summary}
-                            _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
+                            bgGradient="linear(to-r, green.500, green.600)"
+                            _hover={{ 
+                              transform: 'translateY(-2px)', 
+                              boxShadow: '0 10px 25px -5px rgba(34, 197, 94, 0.4)',
+                              bgGradient: 'linear(to-r, green.600, green.700)'
+                            }}
+                            _active={{
+                              transform: 'translateY(0)',
+                              bgGradient: 'linear(to-r, green.700, green.800)'
+                            }}
                             transition="all 0.2s"
+                            isDisabled={!summary || !question.trim()}
                           >
                             {isAsking ? 'Thinking...' : 'Ask Question'}
                           </Button>
@@ -895,11 +1197,14 @@ function App() {
                               colorScheme="green" 
                               w="full" 
                               borderRadius="full"
+                              bg="green.900"
                             />
-                            <Text fontSize="sm" color={mutedTextColor}>
-                              <Icon as={FiActivity} mr={2} />
-                              Thinking...
-                            </Text>
+                            <HStack spacing={2} color={mutedTextColor}>
+                              <Spinner size="sm" color={successColor} />
+                              <Text fontSize="sm">
+                                Analyzing code and generating intelligent answer...
+                              </Text>
+                            </HStack>
                           </VStack>
                         )}
 
@@ -907,15 +1212,34 @@ function App() {
                         {answer && (
                           <VStack spacing={4} align="stretch" w="full">
                             <HStack spacing={3}>
-                              <Icon as={FiZap} w={5} h={5} color={warningColor} />
-                              <Heading size="md" color={textColor}>Answer</Heading>
+                              <Box 
+                                p={2} 
+                                bg={`${warningColor}20`} 
+                                borderRadius="full"
+                                color={warningColor}
+                              >
+                                <Icon as={FiZap} w={5} h={5} />
+                              </Box>
+                              <VStack align="start" spacing={0}>
+                                <Heading size="md" color={textColor}>Answer</Heading>
+                                <Text fontSize="sm" color={mutedTextColor}>AI-generated response</Text>
+                              </VStack>
                             </HStack>
                             
                             {contextFiles.length > 0 && (
-                              <Box>
-                                <Text fontSize="sm" fontWeight="semibold" mb={2} color={mutedTextColor}>
+                              <Box 
+                                p={3} 
+                                bg="blue.900" 
+                                borderRadius="lg"
+                                border="1px"
+                                borderColor="blue.700"
+                              >
+                                <Text fontSize="sm" fontWeight="semibold" mb={1} color="blue.300">
                                   <Icon as={FiFile} mr={2} />
-                                  Based on files: {contextFiles.slice(0, 3).join(', ')}
+                                  Based on files:
+                                </Text>
+                                <Text fontSize="sm" color="blue.400">
+                                  {contextFiles.slice(0, 3).join(', ')}
                                   {contextFiles.length > 3 && ` and ${contextFiles.length - 3} more`}
                                 </Text>
                               </Box>
@@ -923,10 +1247,16 @@ function App() {
                             
                             <Box 
                               p={6} 
-                              bg={useColorModeValue('gray.50', 'gray.700')} 
+                              bg="gray.700" 
                               borderRadius="xl"
                               border="1px"
                               borderColor={borderColor}
+                              _hover={{
+                                borderColor: successColor,
+                                transform: 'translateY(-1px)',
+                                shadow: 'md'
+                              }}
+                              transition="all 0.2s"
                             >
                               <ReactMarkdown>{answer}</ReactMarkdown>
                             </Box>
@@ -966,19 +1296,27 @@ function App() {
                   borderRadius="2xl" 
                   shadow="lg" 
                   p={6}
+                  backdropFilter="blur(15px)"
                   _hover={{ 
                     transform: 'translateY(-8px)', 
                     shadow: '2xl',
-                    borderColor: `${feature.color}.300`
+                    borderColor: `${feature.color}.300`,
+                    bg: 'gray.700',
+                    backdropFilter: 'blur(25px)'
                   }}
                   transition="all 0.3s"
                 >
                   <VStack spacing={4} textAlign="center">
                     <Box 
                       p={4} 
-                      bg={`${feature.color}.100`} 
+                      bg={`${feature.color}.900`}
                       borderRadius="full"
-                      color={`${feature.color}.600`}
+                      color={`${feature.color}.300`}
+                      _groupHover={{
+                        transform: 'scale(1.1)',
+                        bg: `${feature.color}.800`
+                      }}
+                      transition="all 0.2s"
                     >
                       <Icon as={feature.icon} w={8} h={8} />
                     </Box>
@@ -999,7 +1337,8 @@ function App() {
         mt={20} 
         borderTop="1px" 
         borderColor={borderColor} 
-        bg={useColorModeValue('gray.50', 'gray.800')}
+        bg="gray.800"
+        backdropFilter="blur(10px)"
       >
         <Container maxW="container.xl">
           <VStack spacing={8}>
@@ -1012,19 +1351,19 @@ function App() {
                 </VStack>
               </HStack>
               <HStack spacing={6}>
-                <Link href="#" color={mutedTextColor} _hover={{ color: accentColor }}>
+                <Link href="#" color={mutedTextColor} _hover={{ color: accentColor }} transition="color 0.2s">
                   <HStack spacing={2}>
                     <Icon as={FiShield} />
                     <Text>Privacy</Text>
                   </HStack>
                 </Link>
-                <Link href="#" color={mutedTextColor} _hover={{ color: accentColor }}>
+                <Link href="#" color={mutedTextColor} _hover={{ color: accentColor }} transition="color 0.2s">
                   <HStack spacing={2}>
                     <Icon as={FiFile} />
                     <Text>Terms</Text>
                   </HStack>
                 </Link>
-                <Link href="#" color={mutedTextColor} _hover={{ color: accentColor }}>
+                <Link href="#" color={mutedTextColor} _hover={{ color: accentColor }} transition="color 0.2s">
                   <HStack spacing={2}>
                     <Icon as={FiMessageSquare} />
                     <Text>Support</Text>

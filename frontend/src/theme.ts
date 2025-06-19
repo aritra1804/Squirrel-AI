@@ -1,6 +1,11 @@
 import { extendTheme } from '@chakra-ui/react'
 
 const theme = extendTheme({
+  config: {
+    initialColorMode: 'dark',
+    useSystemColorMode: false,
+    disableTransitionOnChange: false,
+  },
   fonts: {
     heading: `'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`,
     body: `'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`,
@@ -30,70 +35,214 @@ const theme = extendTheme({
       800: '#6b21a8',
       900: '#581c87',
     },
+    gray: {
+      50: '#f9fafb',
+      100: '#f3f4f6',
+      200: '#e5e7eb',
+      300: '#d1d5db',
+      400: '#9ca3af',
+      500: '#6b7280',
+      600: '#4b5563',
+      700: '#374151',
+      800: '#1f2937',
+      900: '#111827',
+      950: '#030712',
+    },
+    blue: {
+      50: '#eff6ff',
+      100: '#dbeafe',
+      200: '#bfdbfe',
+      300: '#93c5fd',
+      400: '#60a5fa',
+      500: '#3b82f6',
+      600: '#2563eb',
+      700: '#1d4ed8',
+      800: '#1e40af',
+      900: '#1e3a8a',
+    },
+    green: {
+      50: '#f0fdf4',
+      100: '#dcfce7',
+      200: '#bbf7d0',
+      300: '#86efac',
+      400: '#4ade80',
+      500: '#22c55e',
+      600: '#16a34a',
+      700: '#15803d',
+      800: '#166534',
+      900: '#14532d',
+    },
+    orange: {
+      50: '#fff7ed',
+      100: '#ffedd5',
+      200: '#fed7aa',
+      300: '#fdba74',
+      400: '#fb923c',
+      500: '#f97316',
+      600: '#ea580c',
+      700: '#c2410c',
+      800: '#9a3412',
+      900: '#7c2d12',
+    },
+    red: {
+      50: '#fef2f2',
+      100: '#fee2e2',
+      200: '#fecaca',
+      300: '#fca5a5',
+      400: '#f87171',
+      500: '#ef4444',
+      600: '#dc2626',
+      700: '#b91c1c',
+      800: '#991b1b',
+      900: '#7f1d1d',
+    },
   },
   styles: {
-    global: {
+    global: (props: any) => ({
       body: {
-        bg: 'gray.50',
-        color: 'gray.800',
+        bg: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%)',
+        color: 'gray.100',
+        minHeight: '100vh',
+        backgroundAttachment: 'fixed',
+        backgroundSize: '400% 400%',
+        animation: 'gradientShift 15s ease infinite',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%)',
+          pointerEvents: 'none',
+          zIndex: -1,
+        },
+        '&::after': {
+          content: '""',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.02"%3E%3Ccircle cx="30" cy="30" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+          pointerEvents: 'none',
+          zIndex: -1,
+        },
       },
-    },
+      '@keyframes gradientShift': {
+        '0%': {
+          backgroundPosition: '0% 50%',
+        },
+        '50%': {
+          backgroundPosition: '100% 50%',
+        },
+        '100%': {
+          backgroundPosition: '0% 50%',
+        },
+      },
+      '@keyframes float': {
+        '0%, 100%': {
+          transform: 'translateY(0px)',
+        },
+        '50%': {
+          transform: 'translateY(-10px)',
+        },
+      },
+      'html, body': {
+        scrollBehavior: 'smooth',
+      },
+      '::selection': {
+        bg: 'blue.600',
+        color: 'white',
+      },
+      '::-webkit-scrollbar': {
+        width: '8px',
+      },
+      '::-webkit-scrollbar-track': {
+        bg: 'gray.800',
+      },
+      '::-webkit-scrollbar-thumb': {
+        bg: 'gray.600',
+        borderRadius: '4px',
+      },
+      '::-webkit-scrollbar-thumb:hover': {
+        bg: 'gray.500',
+      },
+    }),
   },
   components: {
     Button: {
       defaultProps: {
-        colorScheme: 'brand',
+        colorScheme: 'blue',
       },
       variants: {
         solid: {
-          bg: 'brand.500',
+          bg: 'blue.500',
           color: 'white',
           _hover: {
-            bg: 'brand.600',
-            transform: 'translateY(-1px)',
-            boxShadow: 'lg',
+            bg: 'blue.600',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
           },
           _active: {
-            bg: 'brand.700',
+            bg: 'blue.700',
             transform: 'translateY(0)',
           },
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         },
         outline: {
-          borderColor: 'brand.500',
-          color: 'brand.500',
+          borderColor: 'blue.400',
+          color: 'blue.400',
           _hover: {
-            bg: 'brand.50',
-            borderColor: 'brand.600',
-            color: 'brand.600',
+            bg: 'blue.900',
+            borderColor: 'blue.300',
+            color: 'blue.300',
+            transform: 'translateY(-1px)',
           },
+          transition: 'all 0.2s',
+        },
+        ghost: {
+          _hover: {
+            bg: 'blue.900',
+          },
+          transition: 'all 0.2s',
         },
       },
     },
     Card: {
       baseStyle: {
         container: {
-          bg: 'white',
+          bg: 'gray.800',
           borderRadius: 'xl',
-          boxShadow: 'lg',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',
           border: '1px solid',
-          borderColor: 'gray.200',
+          borderColor: 'gray.700',
+          _hover: {
+            transform: 'translateY(-4px)',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3)',
+          },
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         },
       },
     },
     Input: {
       defaultProps: {
-        focusBorderColor: 'brand.500',
+        focusBorderColor: 'blue.400',
       },
       variants: {
         filled: {
           field: {
-            bg: 'gray.50',
+            bg: 'gray.700',
+            borderColor: 'gray.600',
+            color: 'gray.100',
             _hover: {
-              bg: 'gray.100',
+              bg: 'gray.600',
             },
             _focus: {
-              bg: 'white',
-              borderColor: 'brand.500',
+              bg: 'gray.600',
+              borderColor: 'blue.400',
+              boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)',
             },
           },
         },
@@ -101,7 +250,22 @@ const theme = extendTheme({
     },
     Textarea: {
       defaultProps: {
-        focusBorderColor: 'brand.500',
+        focusBorderColor: 'blue.400',
+      },
+      variants: {
+        filled: {
+          bg: 'gray.700',
+          borderColor: 'gray.600',
+          color: 'gray.100',
+          _hover: {
+            bg: 'gray.600',
+          },
+          _focus: {
+            bg: 'gray.600',
+            borderColor: 'blue.400',
+            boxShadow: '0 0 0 1px var(--chakra-colors-blue-400)',
+          },
+        },
       },
     },
     Heading: {
@@ -110,10 +274,27 @@ const theme = extendTheme({
         letterSpacing: '-0.025em',
       },
     },
-  },
-  config: {
-    initialColorMode: 'light',
-    useSystemColorMode: false,
+    Badge: {
+      variants: {
+        solid: {
+          bg: 'blue.400',
+          color: 'gray.900',
+        },
+      },
+    },
+    Tabs: {
+      variants: {
+        enclosed: {
+          tab: {
+            _selected: {
+              bg: 'blue.400',
+              color: 'gray.900',
+              borderColor: 'blue.400',
+            },
+          },
+        },
+      },
+    },
   },
 })
 
