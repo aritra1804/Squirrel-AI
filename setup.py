@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GitGenie Setup Script
+Squirrel AI Setup Script
 Quick setup for the AI-powered repository analysis platform
 """
 
@@ -64,7 +64,7 @@ def create_env_file():
         return False
     
     # Create .env file
-    env_content = f"""# GitGenie Environment Variables
+    env_content = f"""# Squirrel AI Environment Variables
 OPENAI_API_KEY={api_key}
 OPENAI_MODEL=gpt-3.5-turbo
 """
@@ -128,7 +128,7 @@ def create_cache_directories():
 
 def main():
     """Main setup function"""
-    print("🚀 GitGenie Setup Script")
+    print("🚀 Squirrel AI Setup Script")
     print("=" * 50)
     
     # Check requirements
@@ -153,7 +153,7 @@ def main():
     create_cache_directories()
     
     print("\n" + "=" * 50)
-    print("🎉 GitGenie setup completed successfully!")
+    print("🎉 Squirrel AI setup completed successfully!")
     print("\n📋 Next steps:")
     print("1. Start the application: ./start.sh")
     print("2. Open your browser to: http://localhost:5173")

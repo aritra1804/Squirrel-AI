@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# 🚀 GitGenie Deployment Script
-# This script helps you deploy GitGenie to Vercel and Railway
+# 🐿️ Squirrel AI Deployment Script
+# This script helps you deploy Squirrel AI to Vercel and Railway
 
 set -e
 
-echo "🚀 GitGenie Deployment Script"
+echo "🐿️ Squirrel AI Deployment Script"
 echo "=============================="
 
 # Colors for output
@@ -124,7 +124,7 @@ setup_env_vars() {
 # Main deployment flow
 main() {
     echo ""
-    print_status "Starting GitGenie deployment..."
+    print_status "Starting Squirrel AI deployment..."
     echo ""
     
     # Check dependencies

@@ -1,4 +1,6 @@
-# React + TypeScript + Vite
+# Squirrel AI Frontend 🐿️
+
+This is the frontend for Squirrel AI, a playful AI-powered tool to explore and play with any GitHub repository.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

@@ -1,10 +1,8 @@
-# GitGenie 🧙‍♂️
+# Squirrel AI 🐿️
 
-**AI-Powered GitHub Repository Analysis & Q&A Platform**
+Squirrel AI is a playful, AI-powered developer hub that lets you play with any GitHub repository. Instantly analyze, explore, and ask questions about codebases using advanced AI. Built with a React frontend and FastAPI backend.
 
-GitGenie is a comprehensive developer hub that uses advanced AI to help you understand any GitHub repository instantly. Built with React frontend and FastAPI backend, it provides intelligent code analysis, interactive Q&A, and detailed project insights.
-
-![GitGenie Demo](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
+![Squirrel AI Demo](https://img.shields.io/badge/Status-Playground-brightgreen)
 ![React](https://img.shields.io/badge/Frontend-React-blue)
 ![FastAPI](https://img.shields.io/badge/Backend-FastAPI-green)
 ![OpenAI](https://img.shields.io/badge/AI-OpenAI-purple)
@@ -47,7 +45,7 @@ GitGenie is a comprehensive developer hub that uses advanced AI to help you unde
 ### 1. Clone the Repository
 ```bash
 git clone <your-repo-url>
-cd gitgenie
+cd squirrel-ai
 ```
 
 ### 2. Set Up Environment
@@ -344,8 +342,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/gitgenie/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/gitgenie/discussions)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/squirrel-ai/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/squirrel-ai/discussions)
 - **Email**: your-email@example.com
 
 ---

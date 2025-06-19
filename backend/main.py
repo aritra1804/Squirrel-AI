@@ -33,7 +33,7 @@ CACHE_DIR = Path("cached_repos")
 # ------------------------------------------------------------------------------------
 
 # Initialize FastAPI app
-app = FastAPI(title="GitGenie API", version="2.0.0")
+app = FastAPI(title="Squirrel AI API", version="2.0.0")
 
 # Add CORS middleware for React frontend
 app.add_middleware(
@@ -388,7 +388,7 @@ CACHE_DIR.mkdir(exist_ok=True)
 
 @app.get("/")
 async def root():
-    return {"message": "GitGenie API v2.0.0 - AI-Powered Code Analysis"}
+    return {"message": "Squirrel AI API v2.0.0 - Play with Repositories using AI!"}
 
 @app.post("/analyze", response_model=AnalyzeResponse)
 async def analyze_repository(request: AnalyzeRequest):

@@ -1,7 +1,7 @@
-# 🚀 GitGenie Deployment Guide
+# 🐿️ Squirrel AI Deployment Guide
 
 ## Overview
-This guide will help you deploy GitGenie to Vercel. Since GitGenie has both a frontend (React) and backend (FastAPI), we'll deploy them separately for optimal performance.
+This guide will help you deploy Squirrel AI to Vercel. Since Squirrel AI has both a frontend (React) and backend (FastAPI), we'll deploy them separately for optimal performance.
 
 ## 📋 Prerequisites
 - [Vercel Account](https://vercel.com)
@@ -45,7 +45,7 @@ cd frontend
 vercel
 
 # Follow the prompts:
-# - Set project name: gitgenie-frontend
+# - Set project name: squirrel-ai-frontend
 # - Set build command: npm run build
 # - Set output directory: dist
 ```
@@ -104,7 +104,7 @@ VITE_API_URL=https://your-backend-url.com
 ```yaml
 services:
   - type: web
-    name: gitgenie-backend
+    name: squirrel-ai-backend
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py
@@ -239,7 +239,7 @@ app.add_middleware(
 
 ## 🎉 Success!
 
-Your GitGenie application is now deployed and ready to use! 
+Your Squirrel AI application is now deployed and ready to use! 
 
 **Frontend**: `https://your-app.vercel.app`
 **Backend**: `https://your-backend-url.com`

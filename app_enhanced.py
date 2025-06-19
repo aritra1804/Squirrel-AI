@@ -26,8 +26,8 @@ CACHE_DIR = Path("cached_repos")
 USE_FALLBACK_MODE = False  # Set to True to use basic analysis without OpenAI
 # ------------------------------------------------------------------------------------
 
-st.set_page_config(page_title="GitGenie - AI Code Explorer", layout="wide")
-st.title("🤖 GitGenie - AI-Powered Code Explorer")
+st.set_page_config(page_title="Squirrel AI - Play with Repositories", layout="wide")
+st.title("🐿️ Squirrel AI - Play with Repositories")
 
 # Ensure CACHE_DIR exists
 CACHE_DIR.mkdir(exist_ok=True)
@@ -565,7 +565,7 @@ if "repo_loaded" not in st.session_state:
 
 # Sidebar
 with st.sidebar:
-    st.header("🚀 GitGenie Setup")
+    st.header("🐿️ Squirrel AI Setup")
     
     # API Key input
     api_key = st.text_input("OpenAI API Key", type="password", help="Enter your OpenAI API key")
@@ -733,7 +733,7 @@ if st.session_state.repo_loaded:
             st.text(f"{indent}📄 {parts[-1]}")
 
 else:
-    st.info("👋 Welcome to GitGenie! Enter a GitHub URL and your OpenAI API key in the sidebar to get started.")
+    st.info("👋 Welcome to Squirrel AI! Enter a GitHub URL and your OpenAI API key in the sidebar to play with repositories.")
     
     # OpenAI setup help
     with st.expander("🔑 Need help with OpenAI API?"):

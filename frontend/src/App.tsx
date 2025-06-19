@@ -48,6 +48,13 @@ import {
   Tag,
   TagLabel,
   TagLeftIcon,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
 } from '@chakra-ui/react'
 import ReactMarkdown from 'react-markdown'
 import axios from 'axios'
@@ -162,6 +169,7 @@ function App() {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const toast = useToast()
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   // Dark mode color scheme
   const cardBg = 'gray.800'
@@ -355,16 +363,17 @@ function App() {
     }
   ]
 
-  const setExampleRepo = (url: string) => {
-    setRepoUrl(url)
+  const handleExampleSelect = (url: string) => {
+    setRepoUrl(url);
+    onClose();
     toast({
       title: 'Example loaded!',
       description: 'Click "Analyze Repository" to get started',
       status: 'info',
       duration: 3000,
       isClosable: true,
-    })
-  }
+    });
+  };
 
   const renderCodeStructure = () => {
     const files = Object.entries(codeStructure)
@@ -508,16 +517,10 @@ function App() {
         <Container maxW="container.xl">
           <Flex justify="space-between" align="center">
             <HStack spacing={3}>
-              <Avatar 
-                size="md" 
-                bg={accentColor} 
-                icon={<FiGithub />} 
-                name="GitGenie"
-                boxShadow="0 4px 12px rgba(59, 130, 246, 0.3)"
-              />
+              <img src="/logo.jpeg" alt="Squirrel AI Logo" style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }} />
               <VStack align="start" spacing={0}>
                 <Heading size="lg" bgGradient="linear(to-r, blue.500, purple.500)" bgClip="text">
-                  GitGenie
+                  Squirrel AI
                 </Heading>
                 <Text fontSize="xs" color={mutedTextColor}>AI-Powered Code Analysis</Text>
               </VStack>
@@ -576,7 +579,7 @@ function App() {
               lineHeight="1.6"
               textShadow="0 1px 2px rgba(0,0,0,0.2)"
             >
-              GitGenie uses advanced AI to analyze your codebase, answer questions, and provide insights 
+              Squirrel AI uses advanced AI to analyze your codebase, answer questions, and provide insights 
               that help you understand complex repositories instantly.
             </Text>
             <HStack spacing={4} pt={4}>
@@ -615,6 +618,7 @@ function App() {
                   boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)'
                 }}
                 transition="all 0.2s"
+                onClick={onOpen}
               >
                 View Examples
               </Button>
@@ -686,10 +690,10 @@ function App() {
               </HStack>
             </Badge>
             <Heading size="xl" bgGradient="linear(to-r, green.400, blue.400)" bgClip="text">
-              Watch GitGenie Work
+              Watch Squirrel AI Work
             </Heading>
             <Text fontSize="lg" color={mutedTextColor} maxW="2xl">
-              See how GitGenie analyzes repositories and answers questions in real-time
+              See how Squirrel AI analyzes repositories and answers questions in real-time
             </Text>
           </VStack>
           
@@ -767,7 +771,7 @@ function App() {
               }}
               transition="all 0.2s"
             >
-              Try GitGenie Now
+              Play with Squirrel AI Now
             </Button>
           </VStack>
         </VStack>
@@ -794,7 +798,7 @@ function App() {
                     bg: 'gray.700'
                   }}
                   transition="all 0.3s"
-                  onClick={() => setExampleRepo(repo.url)}
+                  onClick={() => handleExampleSelect(repo.url)}
                 >
                   <CardBody p={6}>
                     <VStack spacing={3} align="stretch">
@@ -1276,7 +1280,7 @@ function App() {
           <VStack spacing={12}>
             <VStack spacing={4} textAlign="center">
               <Badge colorScheme="purple" variant="subtle" px={3} py={1} borderRadius="full">
-                Why Choose GitGenie?
+                Why Choose Squirrel AI?
               </Badge>
               <Heading size="xl" bgGradient="linear(to-r, blue.600, purple.600)" bgClip="text">
                 Powerful AI Features
@@ -1344,9 +1348,9 @@ function App() {
           <VStack spacing={8}>
             <Flex justify="space-between" align="center" direction={{ base: 'column', md: 'row' }} gap={4} w="full">
               <HStack spacing={3}>
-                <Avatar size="sm" bg={accentColor} icon={<FiGithub />} name="GitGenie" />
+                <Avatar size="sm" bg={accentColor} icon={<FiGithub />} name="Squirrel AI" />
                 <VStack align="start" spacing={0}>
-                  <Text fontWeight="bold" color={textColor}>GitGenie</Text>
+                  <Text fontWeight="bold" color={textColor}>Squirrel AI</Text>
                   <Text fontSize="xs" color={mutedTextColor}>AI-Powered Code Analysis</Text>
                 </VStack>
               </HStack>
@@ -1378,6 +1382,60 @@ function App() {
           </VStack>
         </Container>
       </Box>
+
+      <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl">
+        <ModalOverlay />
+        <ModalContent bg={cardBg} color={textColor}>
+          <ModalHeader>Select an Example Repository</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+              {exampleRepos.map((repo, idx) => (
+                <Card
+                  key={idx}
+                  bg={cardBg}
+                  border="1px"
+                  borderColor={borderColor}
+                  borderRadius="xl"
+                  shadow="md"
+                  cursor="pointer"
+                  _hover={{
+                    transform: 'translateY(-4px)',
+                    shadow: 'xl',
+                    borderColor: accentColor,
+                    bg: 'gray.700',
+                  }}
+                  transition="all 0.3s"
+                  onClick={() => handleExampleSelect(repo.url)}
+                >
+                  <CardBody p={6}>
+                    <VStack spacing={3} align="stretch">
+                      <HStack justify="space-between">
+                        <HStack>
+                          <Icon as={FiStar} color={warningColor} />
+                          <Text fontWeight="bold" color={textColor}>{repo.name}</Text>
+                        </HStack>
+                        <Badge colorScheme="blue" variant="subtle" size="sm">
+                          {repo.language}
+                        </Badge>
+                      </HStack>
+                      <Text fontSize="sm" color={mutedTextColor} noOfLines={2} lineHeight="1.5">
+                        {repo.description}
+                      </Text>
+                      <HStack justify="space-between">
+                        <Text fontSize="xs" color={mutedTextColor}>
+                          ⭐ {repo.stars}
+                        </Text>
+                        <Icon as={FiExternalLink} color={mutedTextColor} />
+                      </HStack>
+                    </VStack>
+                  </CardBody>
+                </Card>
+              ))}
+            </SimpleGrid>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   )
 }

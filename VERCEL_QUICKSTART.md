@@ -36,7 +36,7 @@
 
 ## 🎯 That's It!
 
-Your GitGenie app is now live:
+Your Squirrel AI app is now live:
 - **Frontend**: `https://your-app.vercel.app`
 - **Backend**: `https://your-app.railway.app`
 

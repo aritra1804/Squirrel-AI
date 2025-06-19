@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# GitGenie - AI-Powered Repository Analysis
+# Squirrel AI - Play with Repositories
 # Startup script for backend and frontend
 
-echo "🚀 Starting GitGenie..."
+echo "🐿️ Starting Squirrel AI..."
 
 # Check if Python is installed
 if ! command -v python3 &> /dev/null; then
@@ -38,7 +38,7 @@ cd ..
 if [ ! -f ".env" ]; then
     echo "📝 Creating .env file..."
     cat > .env << EOF
-# GitGenie Environment Variables
+# Squirrel AI Environment Variables
 OPENAI_API_KEY=your-openai-api-key-here
 OPENAI_MODEL=gpt-3.5-turbo
 EOF
@@ -58,7 +58,7 @@ cd ../frontend
 npm run dev &
 FRONTEND_PID=$!
 
-echo "✅ GitGenie is starting up!"
+echo "✅ Squirrel AI is starting up!"
 echo ""
 echo "📊 Backend: http://localhost:8000"
 echo "🎨 Frontend: http://localhost:5173"
