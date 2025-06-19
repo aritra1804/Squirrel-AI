@@ -197,5 +197,3 @@ Error: Out of memory during analysis
 - Use smaller repositories for testing
 
 ---
-
-
