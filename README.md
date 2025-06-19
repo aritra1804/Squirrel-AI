@@ -37,7 +37,7 @@ Squirrel AI is a playful, AI-powered developer hub that lets you play with any G
 
 > **Watch Squirrel AI in action:**
 
-<video src="frontend/public/demo.mp4" controls style="max-width: 100%; border-radius: 1rem; margin-bottom: 1rem;" poster="./s1.png"></video>
+<video src="./demo.mp4" controls style="max-width: 100%; border-radius: 1rem; margin-bottom: 1rem;" poster="./s1.png"></video>
 
 ### Screenshots
 
