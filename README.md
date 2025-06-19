@@ -2,11 +2,6 @@
 
 Squirrel AI is a playful, AI-powered developer hub that lets you play with any GitHub repository. Instantly analyze, explore, and ask questions about codebases using advanced AI. Built with a React frontend and FastAPI backend.
 
-![Squirrel AI Demo](https://img.shields.io/badge/Status-Playground-brightgreen)
-![React](https://img.shields.io/badge/Frontend-React-blue)
-![FastAPI](https://img.shields.io/badge/Backend-FastAPI-green)
-![OpenAI](https://img.shields.io/badge/AI-OpenAI-purple)
-
 ## ✨ Features
 
 ### 🎯 **Smart Repository Analysis**
