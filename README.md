@@ -36,7 +36,13 @@ Squirrel AI is a playful, AI-powered developer hub that lets you play with any G
 
 ## 🖼️ Screenshots
 
-| ![Home](./s1.png) | ![Code Structure](./s2.png) | ![Q&A](./s3.png) | ![Examples](./s4.png) |
+ ![Home](./s1.png)  
+   
+ ![Code Structure](./s2.png)  
+   
+ ![Q&A](./s3.png)  
+   
+ ![Examples](./s4.png)  
 
 ## 🚀 Quick Start
 
