@@ -11,7 +11,7 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: drop-shadow(0 0 2em #b6b8efaa);
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
@@ -96,7 +96,7 @@ html {
 
 /* Apply animations to components */
 .fade-in-up {
-  animation: fadeInUp 0.6s ease-out;
+  animation: fadeInUp 0.7s ease-out;
 }
 
 .pulse {
@@ -111,7 +111,7 @@ html {
 
 /* Dark theme specific styles */
 [data-theme="dark"] .shimmer {
-  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background: linear-gradient(90deg, #162030 25%, #f8fbff 50%, #374151 75%);
   background-size: 200px 100%;
 }
 
@@ -121,7 +121,7 @@ html {
 }
 
 *:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid #31798b;
   outline-offset: 2px;
 }
 
